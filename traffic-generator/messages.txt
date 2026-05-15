@@ -1,0 +1,34 @@
+# Short shopper questions for the traffic generator. One per line.
+# Keep these brief — every line counts against input token budgets.
+# Lines starting with `#` and blank lines are ignored.
+
+Got any t-shirts?
+What's the warmest hoodie?
+Do you have anything in green?
+What sizes do the socks come in?
+Is the Rocket Tee true to size?
+Can I get a gift card?
+How long does shipping take?
+What's your return policy?
+Do you ship internationally?
+Tell me about the Feature Branch Crewneck.
+What's the difference between the Rocket Tee and the Crewneck?
+Is the Dark Mode Cap adjustable?
+What material is the Rollout Tote?
+How do I wash the hoodie?
+Do you have anything for cold weather?
+Got anything funny?
+What goes with the Toggle Socks?
+Is the Ship It Mug dishwasher safe?
+What's the most popular item?
+Anything new this season?
+Do you have a kids' size?
+Can I order a custom design?
+What's the price of the cap?
+How heavy is the crewneck?
+Where are these printed?
+Tell me about the notebook.
+Do you have stickers?
+What if it doesn't fit?
+Can I exchange a size?
+When will more rocket tees be in stock?
