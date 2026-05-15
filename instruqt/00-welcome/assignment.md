@@ -28,3 +28,30 @@ difficulty: basic
 timelimit: 300
 enhanced_loading: null
 ---
+
+# Welcome
+
+Over the next ~2 hours, you're going to build an AI shopping assistant for **ToggleWear**, a fictional online retailer of LaunchDarkly-branded apparel. The assistant's name is **Otto**. Right now Otto doesn't exist — by the end, he'll be live in the [ToggleWear](#tab-1) storefront, targeted by user tier, monitored in production, and guarded by an AI judge that auto-rolls-back regressions.
+
+You're going to do this using **LaunchDarkly AI Configs**: prompts, models, and rollout strategy as runtime configuration instead of hardcoded values.
+
+# What you'll do
+
+| # | Beat |
+|---|---|
+| 01 | Create Otto's first AI Config and wire him into the app. |
+| 02 | Change Otto's personality without redeploying. |
+| 03 | Factor reusable brand voice into snippets. |
+| 04 | Quick quiz to consolidate. |
+| 05 | Add a premium-tier Otto, target it by user attribute. |
+| 06 | Look at Otto's production data in the monitoring view. |
+| 07 | Roll out a risky new model behind a judge-backed guarded rollout. |
+| 08 | Wrap up. |
+
+# Assumptions
+
+This track assumes you already know the LaunchDarkly basics — flags, contexts, environments, targeting rules. If you don't, the [LaunchDarkly Basics](https://launchdarkly.com) track is a better starting point.
+
+The tabs on the right will all be useful: [LaunchDarkly](#tab-0) for the LD UI, [ToggleWear](#tab-1) for the live storefront, [Code Editor](#tab-2) for `server.py` and other repo files.
+
+Click **Check** below when you're ready to start.
