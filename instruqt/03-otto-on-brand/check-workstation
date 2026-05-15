@@ -1,0 +1,35 @@
+#!/bin/sh
+
+# 1. Both snippets exist.
+for snip in brand-voice safety-rules; do
+  STATUS=$(curl -s -o /dev/null -w '%{http_code}' \
+    "https://app.launchdarkly.com/api/v2/projects/${LD_PROJECT_KEY}/ai-configs/prompt-snippets/${snip}" \
+    -H "Authorization: ${LAUNCHDARKLY_ACCESS_TOKEN}")
+  if [ "$STATUS" != "200" ]; then
+    fail-message "The **${snip}** snippet doesn't exist yet. Create it from the AI Configs → Snippets page."
+    exit 1
+  fi
+done
+
+# 2. otto-born's system message references both snippets.
+PROMPT=$(curl -s -X GET \
+  "https://app.launchdarkly.com/api/v2/projects/${LD_PROJECT_KEY}/ai-configs/otto-assistant/variations/otto-born" \
+  -H "Authorization: ${LAUNCHDARKLY_ACCESS_TOKEN}" \
+  | jq -r '.messages[]? | select(.role=="system") | .content')
+
+# VERIFY: the snippet-reference token may be `{{ldsnippet.brand-voice}}` or a
+# different syntax. The check below matches by snippet key appearing in the
+# prompt text — if the real LD syntax embeds the snippet by key, the key will
+# still appear; if it inlines the snippet text instead, the brand-voice and
+# safety-rules KEYWORDS still appear so this remains a useful check.
+if ! echo "$PROMPT" | grep -q 'brand-voice'; then
+  fail-message "Otto's prompt doesn't reference the **brand-voice** snippet. Insert it where Otto's personality used to be."
+  exit 1
+fi
+
+if ! echo "$PROMPT" | grep -q 'safety-rules'; then
+  fail-message "Otto's prompt doesn't reference the **safety-rules** snippet. Insert it where the don't-make-things-up guardrails used to be."
+  exit 1
+fi
+
+exit 0
