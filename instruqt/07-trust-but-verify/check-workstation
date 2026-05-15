@@ -1,0 +1,70 @@
+#!/bin/sh
+
+# 1. Nova Pro model_config + otto-stiff variation exist.
+CONFIG=$(curl -s -X GET \
+  "https://app.launchdarkly.com/api/v2/projects/${LD_PROJECT_KEY}/ai-configs/otto-assistant" \
+  -H "Authorization: ${LAUNCHDARKLY_ACCESS_TOKEN}")
+
+STIFF_MODEL=$(echo "$CONFIG" | jq -r '.variations[]? | select(.key=="otto-stiff") | .modelConfigKey // ""')
+if [ -z "$STIFF_MODEL" ]; then
+  fail-message "The **Otto v3 (Stiff)** variation hasn't been created yet. Re-run setup."
+  exit 1
+fi
+if [ "$STIFF_MODEL" != "Amazon.nova-pro" ]; then
+  fail-message "The Stiff variation isn't using Nova Pro. Expected modelConfigKey **Amazon.nova-pro**, got **${STIFF_MODEL}**."
+  exit 1
+fi
+
+# 2. otto-response-judge AI Config exists in judge mode.
+JUDGE=$(curl -s -X GET \
+  "https://app.launchdarkly.com/api/v2/projects/${LD_PROJECT_KEY}/ai-configs/otto-response-judge" \
+  -H "Authorization: ${LAUNCHDARKLY_ACCESS_TOKEN}")
+JUDGE_MODE=$(echo "$JUDGE" | jq -r '.mode // ""')
+if [ "$JUDGE_MODE" != "judge" ]; then
+  fail-message "The Otto Response Judge AI Config is missing or not in judge mode. Re-run setup."
+  exit 1
+fi
+
+# 3. otto-quality-score metric exists.
+METRIC=$(curl -s -o /dev/null -w '%{http_code}' \
+  "https://app.launchdarkly.com/api/v2/metrics/${LD_PROJECT_KEY}/otto-quality-score" \
+  -H "Authorization: ${LAUNCHDARKLY_ACCESS_TOKEN}")
+if [ "$METRIC" != "200" ]; then
+  fail-message "The **otto-quality-score** metric is missing. Re-run setup."
+  exit 1
+fi
+
+# 4. otto-assistant's evaluationMetricKey is wired up.
+EVAL_KEY=$(echo "$CONFIG" | jq -r '.evaluationMetricKey // ""')
+if [ "$EVAL_KEY" != "otto-quality-score" ]; then
+  fail-message "Otto's AI Config isn't watching the quality-score metric. Expected evaluationMetricKey=**otto-quality-score**, got **${EVAL_KEY}**."
+  exit 1
+fi
+
+# 5. server.py has the judge integration.
+if ! grep -q 'ai_client.judge_config("otto-response-judge"' /opt/ld/ai-configs-intro/app/server.py; then
+  fail-message "server.py hasn't been patched with the judge call. Re-run setup."
+  exit 1
+fi
+
+# 6. Background traffic process is running.
+if ! pgrep -f background_traffic.py > /dev/null; then
+  fail-message "Background traffic generator isn't running. Re-run setup, or start it manually: \`nohup /opt/ld/ai-configs-intro/app/.venv/bin/python /opt/ld/ai-configs-intro/traffic-generator/background_traffic.py &\`"
+  exit 1
+fi
+
+# 7. The learner has *started* a guarded rollout on otto-assistant in test.
+#    VERIFY: the exact API representation of an in-progress guarded rollout
+#    isn't documented, so this check looks for a percentage rollout on the
+#    fallthrough — the simplest proxy for "rollout configured." Operator
+#    should refine this check during click-through.
+TARGETING=$(curl -s -X GET \
+  "https://app.launchdarkly.com/api/v2/projects/${LD_PROJECT_KEY}/ai-configs/otto-assistant/targeting" \
+  -H "Authorization: ${LAUNCHDARKLY_ACCESS_TOKEN}")
+HAS_ROLLOUT=$(echo "$TARGETING" | jq -r '.environments.test.fallthrough.rollout // empty')
+if [ -z "$HAS_ROLLOUT" ]; then
+  fail-message "No guarded rollout configured. On the **Targeting** tab, click the default rule and choose **Start guarded rollout** with the otto-quality-score metric."
+  exit 1
+fi
+
+exit 0

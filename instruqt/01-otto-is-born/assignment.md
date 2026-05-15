@@ -157,6 +157,8 @@ Replace **everything between the opening marker and the** `# ─── End Chall
         req.session_id, req.user_tier, turn, model_id,
         usage.get("inputTokens"), usage.get("outputTokens"), metrics.get("latencyMs"),
     )
+
+    # ─── Challenge 07 judge injects below this marker ──────────────────────
 ```
 
 Save the file. The ToggleWear service auto-reloads.

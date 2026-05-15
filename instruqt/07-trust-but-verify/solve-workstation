@@ -1,0 +1,56 @@
+#!/bin/sh
+#
+# The setup-workstation pre-builds everything except the guarded rollout
+# itself, which the learner is expected to start from the LD UI. The solve
+# is therefore the same as setup, plus a best-effort attempt to start the
+# rollout via REST. VERIFY: the API call below is a draft.
+
+set -e
+
+REPO=/opt/ld/ai-configs-intro
+VENV=$REPO/app/.venv
+
+cd $REPO/terraform/challenge-07
+terraform apply -auto-approve
+
+python3 $REPO/terraform/challenge-07/patch-server.py
+service togglewear restart || true
+
+# Make sure background traffic is running
+if ! pgrep -f background_traffic.py > /dev/null; then
+  nohup "$VENV/bin/python" $REPO/traffic-generator/background_traffic.py \
+    > /var/log/togglewear-bg-traffic.log 2>&1 &
+fi
+
+# VERIFY: best-effort guarded rollout start. The exact JSON shape for
+# starting a guarded rollout on an AI Config is not yet publicly documented.
+# Operator should pin this down and update the call below; if it fails, the
+# learner can configure the rollout from the LD UI as the assignment
+# already walks them through.
+STIFF_VAR_ID=$(curl -s -X GET \
+  "https://app.launchdarkly.com/api/v2/projects/${LD_PROJECT_KEY}/ai-configs/otto-assistant/targeting" \
+  -H "Authorization: ${LAUNCHDARKLY_ACCESS_TOKEN}" \
+  | jq -r '.variations[]? | select(.name=="Otto v3 (Stiff)") | ._id')
+BORN_VAR_ID=$(curl -s -X GET \
+  "https://app.launchdarkly.com/api/v2/projects/${LD_PROJECT_KEY}/ai-configs/otto-assistant/targeting" \
+  -H "Authorization: ${LAUNCHDARKLY_ACCESS_TOKEN}" \
+  | jq -r '.variations[]? | select(.name=="Otto v1 (Born)") | ._id')
+
+if [ -n "$STIFF_VAR_ID" ] && [ -n "$BORN_VAR_ID" ]; then
+  curl -fsS -X PATCH \
+    "https://app.launchdarkly.com/api/v2/projects/${LD_PROJECT_KEY}/ai-configs/otto-assistant/targeting" \
+    -H "Authorization: ${LAUNCHDARKLY_ACCESS_TOKEN}" \
+    -H 'Content-Type: application/json; domain-model=launchdarkly.semanticpatch' \
+    --data-raw "$(jq -n --arg stiff "$STIFF_VAR_ID" --arg born "$BORN_VAR_ID" '
+      {
+        environmentKey: "test",
+        instructions: [{
+          kind: "updateFallthroughVariationOrRollout",
+          rolloutWeights: { ($stiff): 10000, ($born): 90000 },
+          rolloutContextKind: "user"
+        }]
+      }')" \
+    || echo "(rollout REST call failed — learner can configure in UI)"
+fi
+
+exit 0
