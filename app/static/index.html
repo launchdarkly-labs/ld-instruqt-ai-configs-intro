@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ToggleWear — Wear your features on your sleeve.</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">◐</span>
+    <span class="brand-name">ToggleWear</span>
+  </div>
+  <nav class="primary-nav" aria-label="Primary">
+    <a href="#shop">Shop</a>
+    <a href="#about">About</a>
+    <a href="#support">Support</a>
+  </nav>
+  <div class="tier-switch">
+    <label for="user-tier">Logged in as</label>
+    <select id="user-tier" name="user-tier">
+      <option value="free" selected>Free user</option>
+      <option value="premium">Premium user</option>
+    </select>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <h1>Wear your features on your sleeve.</h1>
+    <p class="hero-sub">LaunchDarkly-branded apparel for people who ship.</p>
+  </section>
+
+  <section id="shop" class="product-grid" aria-label="Products"></section>
+</main>
+
+<aside class="otto" aria-label="Otto, ToggleWear's shopping assistant">
+  <button id="otto-toggle" class="otto-toggle" aria-expanded="false" aria-controls="otto-panel">
+    <span class="otto-toggle-dot" aria-hidden="true"></span>
+    <span>Chat with Otto</span>
+  </button>
+  <div id="otto-panel" class="otto-panel" hidden>
+    <div class="otto-header">
+      <span class="otto-title">Otto</span>
+      <span class="otto-subtitle">ToggleWear shopping assistant</span>
+      <button id="otto-close" class="otto-close" aria-label="Close chat">&times;</button>
+    </div>
+    <div id="otto-transcript" class="otto-transcript" role="log" aria-live="polite"></div>
+    <form id="otto-form" class="otto-form" autocomplete="off">
+      <input
+        id="otto-input"
+        class="otto-input"
+        type="text"
+        name="message"
+        placeholder="Ask Otto about products, sizing, or shipping…"
+        aria-label="Message Otto"
+        required>
+      <button type="submit" class="otto-send" aria-label="Send">Send</button>
+    </form>
+    <div id="otto-meta" class="otto-meta"></div>
+  </div>
+</aside>
+
+<footer class="site-footer">
+  <small>&copy; ToggleWear. A fictional shop for a real LaunchDarkly workshop.</small>
+</footer>
+
+<script src="/static/app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+slug: ld-ai-configs-intro
+id: jkerbpsofkz4
+title: Introduction to LaunchDarkly AI Configs
+teaser: Ship AI features the same way you ship everything else — with control, observability,
+  and a safety net.
+description: |-
+  AI Configs let you treat prompts, models, and rollout strategy
+  as runtime configuration instead of code. In this track, you'll
+  build a customer-facing AI assistant for the fictional ToggleWear
+  storefront, iterate on its prompts and models without redeploying,
+  target premium users to a more capable model, watch how it performs
+  in production, and protect customers with a guarded rollout backed
+  by an AI judge.
+icon: https://launchdarkly.com/favicon-dark-mode.png
+tags:
+- ai
+- ai-configs
+- bedrock
+owner: launchdarkly
+developers:
+- kcochran@launchdarkly.com
+show_timer: true
+timelimit: 7200
+lab_config:
+  extend_ttl: 3600
+  feedback_recap_enabled: true
+  feedback_tab_enabled: false
+  loadingMessages: true
+  theme:
+    name: modern-dark
+  override_challenge_layout: false
+  hideStopButton: false
+  default_layout: AssignmentRight
+  default_layout_sidebar_size: 25
+enhanced_loading: false

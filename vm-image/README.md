@@ -1,0 +1,47 @@
+# VM image — `ai-configs-intro`
+
+This directory contains the inputs for the Instruqt VM image referenced by `instruqt/config.yml`. Images are built **manually through the Instruqt web console**, not by an external image pipeline. The `build-image.sh` script in this directory is the artifact you paste into a fresh Ubuntu base to produce the image.
+
+## How to build
+
+1. **Spin up a base VM in the Instruqt console.** Pick an Ubuntu LTS image (22.04 or newer — `python3.11` is available out of the box).
+2. **Open the terminal on that VM and become root** (`sudo -i`, or run `sudo bash` before pasting the script).
+3. **Edit the top of `build-image.sh`** to point `REPO_URL` and `REPO_REF` at the desired commit of this repo. The defaults are placeholders.
+4. **Paste the entire script** into the terminal. It echoes progress at each step and `set -e`s on the first failure.
+5. **Verify** the script's last line — `Done. Save this VM as your image from the Instruqt console.` — appears and `systemctl is-enabled togglewear code-server` reports both as `enabled`.
+6. **Save the running VM as a new image** from the Instruqt console, named to match the `image:` field in `instruqt/config.yml` (currently `instruqt-launchdarkly/ai-configs-intro-1`). Bump the trailing `-N` when re-baking so labs in flight don't get pulled out from under their learners.
+
+The script is idempotent enough to re-run on the same VM (it `rm -rf`s the clone and re-clones), but the intended flow is: fresh base → paste → save.
+
+## What the script installs
+
+| Component | Path | Notes |
+|---|---|---|
+| System tools | `apt` | `jq`, `git`, `curl`, `wget`, `vim`, `unzip`, `gnupg`, `ca-certificates`, `build-essential`, `lsb-release`, `software-properties-common` |
+| System Python 3 + venv | `/usr/bin/python3` | apt (`python3`, `python3-venv`, `python3-dev`). Ubuntu 24.04 noble's system python is 3.12; both `ldai` and `launchdarkly-server-sdk` require ≥3.10, so the system python is fine. |
+| Terraform | `/usr/local/bin/terraform` | Direct binary download from `releases.hashicorp.com`. Pinned in `TERRAFORM_VERSION` at the top of `build-image.sh`. HashiCorp's apt repo's noble component is incomplete, so we bypass it. |
+| App source | `/opt/ld/ai-configs-intro/` | `git clone --depth 1 --branch ${REPO_REF} ${REPO_URL}` |
+| Python venv | `/opt/ld/ai-configs-intro/app/.venv/` | `pip install -r app/requirements.txt` |
+| Seeded `.env` | `/opt/ld/ai-configs-intro/app/.env` | copied from `.env.example`; track-level `setup-workstation` `sed`s real values in at lab start |
+| Bootstrap TF init | `/opt/ld/ai-configs-intro/terraform/student-bootstrap/` | `terraform init` runs at bake time so lab start is fast |
+| `togglewear.service` | `/etc/systemd/system/togglewear.service` | enabled at boot; runs `uvicorn server:app --host 0.0.0.0 --port 3000` |
+| `code-server.service` | `/etc/systemd/system/code-server.service` | enabled at boot; serves on port 8080 with `--auth none` |
+
+## When to re-bake
+
+Re-bake any time:
+- `app/requirements.txt` changes (the venv inside the image needs to be rebuilt).
+- A systemd unit changes (the unit is written at bake time, not lab start).
+- A new tool is needed in `apt`.
+
+You do **not** need to re-bake when:
+- An `assignment.md` body changes (the lab pulls files from `/opt/ld/ai-configs-intro/` at lab start — no, wait, see below).
+- A `setup-workstation` / `check-workstation` / `solve-workstation` script changes.
+
+**Source-of-truth note:** the current track-level `setup-workstation` does *not* `git pull` at lab start, so any change to scripts or assignment files inside `instruqt/` or `terraform/challenge-NN/` requires a re-bake. This matches the reference track's convention. If we want hot-edit-without-re-bake, we can add a `git pull` to the top of `setup-workstation` — flagged as an open question in `PHASES.md`.
+
+## What the image does **not** include
+
+- AWS credentials, LD access tokens, LD SDK/client/project keys — those arrive via Instruqt secrets and `setup-workstation` at lab start.
+- The student's LD project — created at lab start by `terraform/student-bootstrap/`.
+- AI Config resources themselves — those are created by the learner (or by per-challenge `solve-workstation` Terraform).

@@ -278,12 +278,25 @@ Each phase has:
 
 ## Phase 1 verification notes
 
-*(Filled in by Claude Code during Phase 1 — initially empty)*
+Recorded by Claude Code on 2026-05-15.
 
-- Current `launchdarkly/launchdarkly` Terraform provider version:
-- AI Configs resources supported by Terraform provider:
-- Current `ldai` Python package version:
-- Current `launchdarkly-server-sdk` Python version:
-- Chosen AWS region:
-- Bedrock cross-region inference profile availability (Sonnet, region):
-- Open questions for operator resolved during Phase 1:
+- **Current `launchdarkly/launchdarkly` Terraform provider version**: `2.29.0` (released 2026-05-08). Pinned in `terraform/student-bootstrap/versions.tf` as `~> 2.29`.
+- **AI Configs resources supported by Terraform provider**: `launchdarkly_ai_config` (modes: `completion`, `agent`, `judge`), `launchdarkly_ai_config_variation` (with inline `messages`, `model`, and `model_config_key`), `launchdarkly_ai_tool`, `launchdarkly_model_config`, `launchdarkly_metric`. AI Configs resources first shipped in provider v2.28.0 (2026-04-20).
+  - **Gaps** that will need REST-API fallback via `null_resource` + `local-exec` `curl`: prompt snippets (Phase 4, challenge 03), AI Config targeting rules (Phase 5, challenge 05), guarded rollouts on AI Configs (Phase 7, challenge 07). The MCP tools `update-ai-config-targeting-rules`, `update-ai-config-rollout`, and `update-ai-config-individual-targets` confirm the REST endpoints exist.
+- **Current `ldai` (launchdarkly-server-sdk-ai) Python version**: `0.20.1` (released 2026-05-14). Requires Python ≥3.10. Will be pinned in `app/requirements.txt` in Phase 3.
+- **Current `launchdarkly-server-sdk` Python version**: `9.15.0` (released 2026-02-10). Requires Python 3.10+. Will be pinned in `app/requirements.txt` in Phase 3.
+- **VM Python**: system `python3` from Ubuntu 24.04 noble — currently **3.12**. Both LD SDKs require ≥3.10. (Initial plan called for 3.11 via apt; noble doesn't ship 3.11, and 3.12 satisfies the constraint, so we use the system python.)
+- **VM Terraform**: pinned to `1.15.2` (released 2026-05-06) and installed via direct binary download from `releases.hashicorp.com`. HashiCorp's apt repo's noble component is incomplete, so we bypass apt.
+- **Chosen AWS region**: `us-east-1` (operator decision). Passed to the VM via the `AWS_REGION` Instruqt secret.
+- **Bedrock cross-region inference profile availability (Sonnet, us-east-1)**: US geographic inference profile routes us-east-1 → us-east-1/us-west-2 for Claude Sonnet 4.5+. Global inference profile is supported on Claude Sonnet 4. Specific model and inference-profile IDs (Haiku, Sonnet, Nova Pro) will be locked in Phase 3 when wiring Bedrock — they live on each model's detail page in the Bedrock docs rather than in a single index, and the IDs change as new model versions ship.
+- **VM image name**: `instruqt-launchdarkly/ai-configs-intro-1` (placeholder — operator may rename when registering the image).
+- **VM `machine_type`**: bumped from reference's `n1-standard-1` to `n1-standard-2` to give headroom for the FastAPI app + traffic generator + Bedrock SDK. Open question flagged in `vm-image/README.md`.
+
+### Open questions for operator (flagged during Phase 1)
+
+1. **Repo HTTPS URL** to set at the top of `vm-image/build-image.sh` before the operator pastes it into the Instruqt console.
+2. **`machine_type` confirmation**: is `n1-standard-2` acceptable, or should we stay on `n1-standard-1` to match the reference?
+3. **VM image name versioning convention**: confirm `ai-configs-intro-N` with bumped suffix on re-bake.
+4. **Source-of-truth at lab start**: keep the reference convention of *no* `git pull` at lab start (assignment/script edits require a re-bake), or add a pull (slower start, but live edits)?
+5. **Two environments or one?** The reference uses only `test`. We could pre-create both `test` and `production` to give the challenge-05 targeting demo more dimensions, but it adds complexity. Current implementation: just `test`, matching the reference.
+6. **Bedrock model ID specifics** for us-east-1: which Haiku version, which Sonnet inference profile (geo vs global), which Nova Pro ID? Deferred to Phase 3 since they aren't blocking for skeleton.

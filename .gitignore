@@ -134,3 +134,6 @@ NOTES.md
 TODO.md
 scratch/
 tmp/
+
+# Reference track dropped in by operator for convention-mirroring; not part of this project
+instruqt-reference/
