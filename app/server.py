@@ -103,3 +103,9 @@ def _canned_response(message: str, user_tier: str) -> str:
 
     tier_note = " (Premium support enabled.)" if user_tier == "premium" else ""
     return f"I am unable to assist with that request. Please try a different question.{tier_note}"
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=3000)
