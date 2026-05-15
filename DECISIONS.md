@@ -223,3 +223,78 @@ Format: one decision per section, dated, with options considered and reason for 
 - *Hybrid: confident drafts from docs + operator click-through pass.* Chosen. Lowest total operator time, highest first-draft quality given the tooling constraint.
 
 This decision is enforced in `CLAUDE.md` ("UI instructions in assignment.md are drafts pending operator verification") and in every UI-touching phase's done-when in `PHASES.md`.
+
+---
+
+## LD model name → Bedrock model ID lives in the app, not the AI Config
+
+**Decision:** LaunchDarkly's model config registry stores vendor-neutral model names like `claude-haiku-4-5`, `nova-pro`. The app's `server.py` maintains a `BEDROCK_MODEL_IDS` dict that maps each to the corresponding Bedrock model or inference-profile ID (e.g. `us.anthropic.claude-haiku-4-5-20251001-v1:0`). Adding a new model means a row in that dict — no AI Config changes needed.
+
+**Rationale:** Discovered the hard way during Phase 3: the `modelName` passed when creating a variation is a hint, but what `cfg.model.name` returns from the SDK is the model config's vendor-neutral `modelId`. Bedrock needs the full model/profile ID. The cleanest place for that translation is the boundary where we leave LD-land and enter AWS-land — in the app's Bedrock client wrapper.
+
+**Side benefit:** The LD AI Config stays vendor-agnostic. If we ever swap Bedrock for OpenAI direct, only `BEDROCK_MODEL_IDS` (or its OpenAI equivalent) changes — the AI Configs and variations don't.
+
+---
+
+## Per-challenge Terraform modules are independent and hybrid
+
+**Decision:** Each challenge has its own `terraform/challenge-NN/` module with its own state. Modules use:
+
+- `launchdarkly_*` resources for NEW resources introduced by that challenge (e.g. challenge-01 creates the Haiku model_config, the AI Config, and the first variation; challenge-05 creates the Sonnet variation; challenge-07 creates Nova Pro model_config, the Stiff variation, the judge config, and the metric).
+- `null_resource` + `local-exec curl` for: updates to resources owned by earlier challenges' modules (which Terraform can't touch from a different module without `terraform import`), and for resources the provider doesn't yet expose (snippets, AI Config targeting rules, guarded rollouts, AI Config `evaluationMetricKey`).
+
+**Rationale:** Each challenge's solve must produce the END STATE of that challenge regardless of whether prior challenges were completed in code or skipped. Terraform's per-module state model doesn't share resources across modules, so updates to "already-managed" resources need to go through either `terraform import` (operationally heavy) or REST API (lightweight). REST via `null_resource` won.
+
+**Side effect:** Some idempotency is on us — for example, challenge-03's snippet POST has `|| echo "(may already exist)"` because the second apply would 409. Worth the trade-off for state simplicity.
+
+---
+
+## server.py BEFORE state + marker-based paste pattern
+
+**Decision:** `server.py` ships from the VM image in a BEFORE state: imports/init/helpers/turn-cap pre-wired, but `/chat`'s body is a clearly-marked stub block returning a canned "not wired yet" response. Challenge 01 has the learner replace the stub with ~30 lines of AI Config + Bedrock eval logic. The solve script applies the same paste programmatically using a Python script that finds the markers and substitutes the block.
+
+A second marker (`# ─── Challenge 07 judge injects below this marker ──────`) sits at the bottom of the post-Challenge-01 code. Challenge 07's setup script finds it and injects the judge integration block.
+
+**Rationale:** Two-step staged code injection keeps each challenge's setup self-contained while making it possible for later challenges to extend the same file. Pure Python `find/replace` on stable comment markers is more robust than line-number-based patching and survives the learner doing the paste manually vs. via solve.
+
+**Trade-off:** The marker comments persist in the final server.py code. Acceptable — they're inert single-line comments with clear purpose.
+
+---
+
+## AI Config snippet-reference syntax: deferred to operator verification
+
+**Decision:** Phase 4 / Challenge 03 introduces prompt snippets via REST (the Terraform provider doesn't expose them yet). The reference syntax for embedding a snippet in a variation message — i.e. what token the UI/SDK expects — isn't documented anywhere I could find at authoring time. The placeholder `{{ldsnippet.<key>}}` is used throughout, with `<!-- VERIFY -->` markers in the assignment and Terraform calling it out. Operator confirms or fixes during click-through.
+
+**Rationale:** Spent significant time searching docs, OpenAPI, and SDK source — no canonical reference. Authoring against a placeholder is faster than blocking the whole phase on this single detail; the marker pattern (already a documented project convention) handles the verification gap.
+
+**Where this lives:** `instruqt/03-otto-on-brand/assignment.md`, `instruqt/05-otto-for-everyone/assignment.md`, `terraform/challenge-03/main.tf`, `terraform/challenge-05/main.tf`. Update all four locations together when the real syntax is confirmed.
+
+---
+
+## Guarded rollout configured by the learner, not pre-built
+
+**Decision:** Phase 7's setup pre-builds everything *except* the guarded rollout itself: the Nova Pro Stiff variation, the judge AI Config + metric, the server-side judge integration, and a low-rate background traffic generator. The learner configures the guarded rollout in the LD UI as the lab's actionable centerpiece.
+
+**Rationale:** Two reasons. First, LaunchDarkly's REST API for starting a guarded rollout isn't publicly documented at authoring time — the OpenAPI spec includes the `GuardedReleaseConfig` schema and `ReleaseGuardianConfiguration` but no path uses them in the spec. Reverse-engineering the UI's API calls was deferred. Second, configuring the rollout in the UI *is* the most important learning moment of the track — making the learner do it themselves reinforces the workshop's main lesson.
+
+**Side script:** `traffic-generator/sabotage.py` exists as a presenter escape hatch — emits low judge scores directly via `ld_client.track()` to force a regression detection when organic background traffic is too slow.
+
+**Side benefit:** Makes the lab demonstrably "real" — the learner can see the rollback fire from their own configuration, not from a pre-built one that magically works.
+
+---
+
+## Judge invocation: SDK eval + manual Bedrock call
+
+**Decision:** The judge integration in `server.py` (added by Challenge 07's setup patch) calls `ai_client.judge_config(...)` to evaluate the `otto-response-judge` AI Config (which interpolates the `{{response}}` template variable with Otto's answer), then calls `bedrock.converse()` manually with the resulting model and messages. The 1-5 score is parsed from the response text and emitted via raw `ld_client.track("otto-quality-score", ...)` rather than `tracker.track_judge_result(...)`.
+
+**Rationale:** The `ldai` SDK supports a higher-level judge flow via `create_judge()` + `judge.evaluate()`, but it relies on an AI Provider plugin system (langchain, openai). There's no `ldai_bedrock` provider as of authoring. Writing a custom provider was scoped out. Manual Bedrock invocation works fine and stays transparent to the workshop's audience — the code reads exactly like the regular Otto eval.
+
+---
+
+## Traffic generator skips Bedrock entirely
+
+**Decision:** `traffic-generator/generate_traffic.py` and `background_traffic.py` evaluate the AI Config to get a real tracker, then emit synthetic `track_duration`, `track_tokens`, `track_success`, and `track_feedback` events with values weighted per model. They do NOT call Bedrock.
+
+**Rationale:** Real Bedrock calls would make 120 sessions take ~10 minutes and cost real money per learner. The monitoring view only consumes the LD-side metric events, so skipping Bedrock costs nothing in terms of what the lab shows. Weights are tuned so Sonnet looks visibly better than Haiku in the dashboard, and Nova Pro Stiff looks worse — the comparison is what matters, not the absolute numbers.
+
+**Side benefit:** Same generator works as a sabotage tool — see `sabotage.py`, which is just the metric-emission path without the eval boilerplate.

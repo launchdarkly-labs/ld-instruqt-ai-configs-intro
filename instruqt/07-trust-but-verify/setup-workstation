@@ -25,8 +25,11 @@ service togglewear restart
 
 # 4. Start background traffic in the background so the rollout has organic
 #    data. Logs to /var/log/togglewear-bg-traffic.log; kill with
-#    `pkill -f background_traffic.py` if needed.
-nohup "$VENV/bin/python" $REPO/traffic-generator/background_traffic.py \
-  > /var/log/togglewear-bg-traffic.log 2>&1 &
+#    `pkill -f background_traffic.py` if needed. Skip if already running so
+#    re-running setup doesn't spawn duplicate processes.
+if ! pgrep -f background_traffic.py > /dev/null; then
+  nohup "$VENV/bin/python" $REPO/traffic-generator/background_traffic.py \
+    > /var/log/togglewear-bg-traffic.log 2>&1 &
+fi
 
 exit 0
