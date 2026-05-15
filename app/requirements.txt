@@ -1,6 +1,10 @@
-# Phase 2: server scaffold only. AI deps (boto3, ldai, launchdarkly-server-sdk)
-# are added in Phase 3 when /chat is wired to AI Configs + Bedrock.
-
 fastapi==0.136.1
 uvicorn[standard]==0.47.0
 python-dotenv==1.0.1
+
+# LaunchDarkly SDKs
+launchdarkly-server-sdk==9.15.0
+launchdarkly-server-sdk-ai==0.20.1
+
+# AWS Bedrock
+boto3==1.43.8
