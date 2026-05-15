@@ -1,6 +1,6 @@
 ---
 slug: how-is-otto-doing
-id: j4wdo222pn57
+id: yx72jfignrey
 type: challenge
 title: How is Otto Doing?
 teaser: Otto is live. Time to look at the data. Tokens, latency, and learner feedback,
@@ -11,16 +11,16 @@ notes:
     have been chatting with Otto and rating his answers. In this challenge you'll
     explore the AI Configs monitoring view and see how Otto's variations stack up.
 tabs:
-- id: h57x9qq2j2gv
+- id: ppkjnwmekdtl
   title: LaunchDarkly
   type: browser
   hostname: launchdarkly
-- id: 0jaq79qcuvba
+- id: sghestrw5czf
   title: ToggleWear
   type: service
   hostname: workstation
   port: 3000
-- id: l2xsfbj91jmv
+- id: ehfwvayaywjc
   title: Code Editor
   type: service
   hostname: workstation

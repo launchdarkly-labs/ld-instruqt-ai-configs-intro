@@ -1,6 +1,6 @@
 ---
 slug: trust-but-verify
-id: ue1k1hzg0wbr
+id: hj0tbpikhbgv
 type: challenge
 title: Trust but Verify
 teaser: Try a new model behind a guarded rollout — and watch LaunchDarkly roll back
@@ -11,16 +11,16 @@ notes:
     challenge you'll roll out a third variation behind a guarded rollout backed by
     an AI judge — and see LaunchDarkly automatically pull the plug when quality slips.
 tabs:
-- id: ml3ugas7bmy5
+- id: od2xl8x8ek6e
   title: LaunchDarkly
   type: browser
   hostname: launchdarkly
-- id: dcga7orehwj7
+- id: gjottwyvrahj
   title: ToggleWear
   type: service
   hostname: workstation
   port: 3000
-- id: m8a95tpgh2rp
+- id: ocvshb8njmpm
   title: Code Editor
   type: service
   hostname: workstation

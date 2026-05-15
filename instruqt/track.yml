@@ -1,5 +1,5 @@
 slug: ld-ai-configs-intro
-id: jkerbpsofkz4
+id: xl0egbmxaqtv
 title: Introduction to LaunchDarkly AI Configs
 teaser: Ship AI features the same way you ship everything else — with control, observability,
   and a safety net.
@@ -13,16 +13,18 @@ description: |-
   by an AI judge.
 icon: https://launchdarkly.com/favicon-dark-mode.png
 tags:
+- bedrock
 - ai
 - ai-configs
-- bedrock
 owner: launchdarkly
 developers:
 - kcochran@launchdarkly.com
 show_timer: true
+idle_timeout: 300
 timelimit: 7200
 lab_config:
   extend_ttl: 3600
+  sidebar_enabled: true
   feedback_recap_enabled: true
   feedback_tab_enabled: false
   loadingMessages: true
@@ -32,4 +34,5 @@ lab_config:
   hideStopButton: false
   default_layout: AssignmentRight
   default_layout_sidebar_size: 25
+checksum: "14740883808123949749"
 enhanced_loading: false

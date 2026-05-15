@@ -1,6 +1,6 @@
 ---
 slug: quiz-configs-and-snippets
-id: iaahiq6k2y39
+id: hpdtzu3ytdvn
 type: quiz
 title: Quiz — AI Configs and Snippets
 teaser: A quick check on what you just built.
@@ -9,8 +9,10 @@ notes:
   contents: Pause for a moment and consolidate. The next question is about AI Configs,
     snippets, and what changes when you edit a prompt in the LaunchDarkly UI.
 answers:
-- The Python `launchdarkly-server-sdk-ai` package auto-reloads the server when a prompt changes.
-- LaunchDarkly AI Configs evaluate at runtime, so prompt edits in the UI are picked up on the next chat — no redeploy required.
+- The Python `launchdarkly-server-sdk-ai` package auto-reloads the server when a prompt
+  changes.
+- LaunchDarkly AI Configs evaluate at runtime, so prompt edits in the UI are picked
+  up on the next chat — no redeploy required.
 - The systemd service watches for prompt file changes on disk and restarts the app.
 - The ToggleWear chat widget caches the prompt in `localStorage` and refreshes hourly.
 solution:

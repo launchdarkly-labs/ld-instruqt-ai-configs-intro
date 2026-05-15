@@ -1,6 +1,6 @@
 ---
 slug: otto-on-brand
-id: 93zhiqpusnu1
+id: kkfypozqvsxw
 type: challenge
 title: Otto On-Brand at Scale
 teaser: Otto's prompt is getting long. Factor reusable brand voice and safety rules
@@ -11,16 +11,16 @@ notes:
     safety rules — out into reusable snippets. Snippets let you change those rules
     in one place and have every AI Config that references them pick up the change.
 tabs:
-- id: i7gzntl9aovx
+- id: detd4ug6thh5
   title: LaunchDarkly
   type: browser
   hostname: launchdarkly
-- id: r19ab8kfx74q
+- id: 17qxsshhwap1
   title: ToggleWear
   type: service
   hostname: workstation
   port: 3000
-- id: 42217wqpq8hf
+- id: 7pdwwcpdtmcx
   title: Code Editor
   type: service
   hostname: workstation

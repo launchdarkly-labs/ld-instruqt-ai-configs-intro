@@ -1,6 +1,6 @@
 ---
 slug: wrap-up
-id: e4ya0cx6tntd
+id: 81bduqiqnjeb
 type: quiz
 title: Wrap-Up
 teaser: Otto is grown. So are you.
@@ -10,7 +10,8 @@ notes:
     targeted AI assistant. One last question to close the loop, and then you're done.
 answers:
 - LaunchDarkly's SDK auto-detects bad responses and switches models behind the scenes.
-- The guarded rollout watched a metric (the judge's quality score) and rolled back automatically when scores regressed below baseline.
+- The guarded rollout watched a metric (the judge's quality score) and rolled back
+  automatically when scores regressed below baseline.
 - The Bedrock API includes a built-in quality gate that rejects off-brand responses.
 - The ToggleWear server cached good responses and returned them when the judge complained.
 solution:

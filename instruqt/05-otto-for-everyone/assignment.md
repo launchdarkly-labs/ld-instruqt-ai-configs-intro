@@ -1,6 +1,6 @@
 ---
 slug: otto-for-everyone
-id: wuoad3yql2su
+id: hadihgfs085x
 type: challenge
 title: Otto for Everyone
 teaser: Free shoppers and premium shoppers want different things. Give them different
@@ -11,16 +11,16 @@ notes:
     on the site — Otto should be no exception. In this challenge you'll add a second
     variation backed by a more capable model, then target it to premium shoppers.
 tabs:
-- id: gzw6pg737pi3
+- id: a2h2cnix35xw
   title: LaunchDarkly
   type: browser
   hostname: launchdarkly
-- id: ubr1gr777qhy
+- id: 5qjvd5b0htc7
   title: ToggleWear
   type: service
   hostname: workstation
   port: 3000
-- id: vjucgo2sazwi
+- id: jfhxfxbweaqh
   title: Code Editor
   type: service
   hostname: workstation
