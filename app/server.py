@@ -45,11 +45,8 @@ ld_client = LDClient(LDConfig(LD_SDK_KEY))
 ai_client = LDAIClient(ld_client)
 # Explicit credentials — avoids the boto3 credential chain falling back to
 # stale shared-credentials files, instance profiles, or SSO refresh attempts.
-bedrock = boto3.client(
-    "bedrock-runtime",
-    region_name=AWS_REGION,
-    profile_name=AWS_PROFILE,
-)
+boto_session = boto3.Session(profile_name=AWS_PROFILE, region_name=AWS_REGION)
+bedrock = boto_session.client("bedrock-runtime")
 
 FALLBACK_CONFIG = AICompletionConfigDefault(enabled=False)
 

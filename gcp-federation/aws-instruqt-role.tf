@@ -87,11 +87,13 @@ data "aws_iam_policy_document" "bedrock" {
 
     resources = [
       "arn:aws:bedrock:us-east-1:${var.account_id}:inference-profile/us.anthropic.claude-sonnet-4-6",
+      "arn:aws:bedrock:us-east-1:${var.account_id}:inference-profile/us.anthropic.claude-sonnet-4-5-20250929-v1:0",
       "arn:aws:bedrock:us-east-1:${var.account_id}:inference-profile/us.anthropic.claude-haiku-4-5-20251001-v1:0",
       "arn:aws:bedrock:us-east-1:${var.account_id}:inference-profile/us.amazon.nova-lite-v1:0",
       "arn:aws:bedrock:us-east-1:${var.account_id}:inference-profile/us.amazon.nova-pro-v1:0",
 
       "arn:aws:bedrock:*::foundation-model/anthropic.claude-sonnet-4-6",
+      "arn:aws:bedrock:*::foundation-model/anthropic.claude-sonnet-4-5-20250929-v1:0",
       "arn:aws:bedrock:*::foundation-model/anthropic.claude-haiku-4-5-20251001-v1:0",
       "arn:aws:bedrock:*::foundation-model/amazon.nova-lite-v1:0",
       "arn:aws:bedrock:*::foundation-model/amazon.nova-pro-v1:0",
