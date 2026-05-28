@@ -4,12 +4,12 @@ This directory contains the inputs for the Instruqt VM image referenced by `inst
 
 ## How to build
 
-1. **Spin up a base VM in the Instruqt console.** Pick an Ubuntu LTS image (22.04 or 24.04 — the script uses whatever `python3` ships with the base, which must be ≥3.10).
+1. **Create a Host image in the Instruqt console:** left sidebar → **Settings → Host images** → **Create image** (top-right). Pick an Ubuntu LTS **preset** as the base image (22.04 or 24.04 — the script uses whatever `python3` ships with the base, which must be ≥3.10). Leave disk size at the default unless a bake runs out of space.
 2. **Open the terminal on that VM and become root** (`sudo -i`, or run `sudo bash` before pasting the script).
 3. **Edit the top of `build-image.sh`** to point `REPO_URL` and `REPO_REF` at the desired commit of this repo. The defaults are placeholders.
 4. **Paste the entire script** into the terminal. It echoes progress at each step and `set -e`s on the first failure.
 5. **Verify** the script's last line — `Done. Save this VM as your image from the Instruqt console.` — appears and `systemctl is-enabled togglewear code-server` reports both as `enabled`.
-6. **Save the running VM as a new image** from the Instruqt console, named to match the `image:` field in `instruqt/config.yml` (currently `instruqt-launchdarkly/ai-configs-intro-1`). Bump the trailing `-N` when re-baking so labs in flight don't get pulled out from under their learners.
+6. **Save the image** from the Host images console. The live track loads `launchdarkly/workshop-ai-configs` (see the `image:` field in `instruqt/config.yml`). When re-baking, give the new image a **distinct** name (e.g. `workshop-ai-configs-2`) and update `config.yml`'s `image:` to match — do **not** reuse the live name, so labs in flight aren't pulled out from under their learners.
 
 The script is idempotent enough to re-run on the same VM (it `rm -rf`s the clone and re-clones), but the intended flow is: fresh base → paste → save.
 
