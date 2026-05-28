@@ -73,7 +73,7 @@ Otto v1 (Born)
 ```text
 otto-born
 ```
-4. Under **Model**, pick **Anthropic** --> **claude-haiku-4-520251001** from the list.
+4. Under **Model**, choose the **Bedrock** provider → **anthropic.claude-haiku-4-5-20251001-v1:0**. (The app calls AWS Bedrock, so pick the model under **Bedrock** — not the "Anthropic" provider, which is the direct Anthropic API.)
 5. In the prompt text area, select **System**, and add this content in the prompt:
 ```text
 You are a customer service assistant for ToggleWear, an online retailer. Answer questions from customers about products and store policies. Be accurate and concise.
