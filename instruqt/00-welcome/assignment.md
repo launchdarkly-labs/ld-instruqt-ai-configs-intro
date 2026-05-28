@@ -64,14 +64,18 @@ This variant runs on **your own** LaunchDarkly account and **your own** AWS Bedr
 
 # Bring your own credentials
 
-1. Open the [LaunchDarkly](#tab-0) tab and log in to your own LaunchDarkly account.
-2. Create an API access token: **Account settings → Authorization → Access tokens → Create token**, role **Writer** (or higher — a Reader token will pass this step but fail later challenges).
-3. Open the [Code Editor](#tab-2) tab and open **`app/.env`**.
-4. Fill in and **save**:
-   - `LAUNCHDARKLY_ACCESS_TOKEN=` your token from step 2
-   - `AWS_ACCESS_KEY_ID=` / `AWS_SECRET_ACCESS_KEY=` your AWS keys (set `AWS_SESSION_TOKEN` too *only* for temporary/SSO creds)
-   - leave `AWS_REGION=us-east-1`, and leave `LD_SDK_KEY` / `LD_PROJECT_KEY` blank — Check fills them in.
+1. Open the [LaunchDarkly](#tab-0) tab and log in to your LaunchDarkly account.
+2. **Create a project**: project dropdown → **Create project**. Name it anything (e.g. `otto-demo`). New projects come with a **Test** environment — that's the one we use.
+3. Grab the project's values:
+   - **SDK key**: Project settings → **Environments** → **Test** → copy the **SDK key**.
+   - **Project key**: shown in Project settings (e.g. `otto-demo`).
+4. **Create an API access token**: **Account settings → Authorization → Access tokens → Create token**, role **Writer** (or higher — a Reader token validates here but fails later challenges). Copy it.
+5. Open the [Code Editor](#tab-2) tab, open **`app/.env`**, fill in and **save**:
+   - `LD_SDK_KEY=` your Test SDK key
+   - `LD_PROJECT_KEY=` your project key
+   - `LAUNCHDARKLY_ACCESS_TOKEN=` your Writer token
+   - `AWS_ACCESS_KEY_ID=` / `AWS_SECRET_ACCESS_KEY=` your AWS keys (`AWS_SESSION_TOKEN` *only* for temporary/SSO creds); leave `AWS_REGION=us-east-1`.
 
 > These values are visible on screen as you paste. Use a short-lived token and revoke it after.
 
-Click **Check** below. It validates your credentials, creates your project (`ai-configs-intro-<id>`) in your account, wires the app to it, and confirms Bedrock works.
+Click **Check** below. It confirms your project + token are valid, wires the app to your SDK key, and verifies Bedrock works.
