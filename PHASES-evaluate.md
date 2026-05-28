@@ -434,3 +434,46 @@ These belong to Phase 0 but are worth listing up top:
 4. **Metric key naming for the brand-voice judge.** Build's ch07 used `otto-quality-score`. Evaluate's brand-voice judge could reuse that name (lifts cleanly into ch07's rewire) or use a more-specific name like `otto-brand-voice-score`. Operator picks during Phase 4; ripples into Phase 6's rewire.
 5. **Two judges sampling overlap.** Built-in (ch02) and custom (ch03+04) judges both sample Otto's responses. Does running both at once cause double-billing of judge inference, or do they share a sample? Phase 0 verifies. If they don't share, the lab may want to lower built-in sample rate when custom judges activate.
 6. **Time budget for bootstrap.** Applying Build's six solves at the start of Evaluate could exceed acceptable startup time. If so, the alternative is pre-baking the post-Build state into a snapshot the VM image carries. Phase 1 measures and decides.
+
+---
+
+## Phase 0 verification notes
+
+Recorded by Claude Code on 2026-05-28.
+
+### Resolved
+
+- **Snippet template syntax** — confirmed from the official LD docs at `https://launchdarkly.com/docs/home/agentcontrol/snippets`: the literal token is `{{snippet.<key>#<version>}}`. Version-pinning appears in the canonical example, so the syntax is version-aware. Whether omitting the version resolves to "latest" needs a small test in Phase 1.
+  - **Side effect:** the legacy Build ch03 uses the placeholder `{{ldsnippet.<key>}}` (see `terraform/challenge-03/main.tf` and `instruqt-build/03-otto-on-brand/assignment.md`). The marker `# VERIFY: the exact snippet-reference syntax inside a variation message is not clearly documented as of authoring` is still in the file. Build is currently shipping with the wrong syntax. Fix needs to land in Build before or alongside Evaluate's authoring. Tracked separately.
+  - Evaluate's brand-voice judge prompt references the existing `brand-voice` snippet via `{{snippet.brand-voice#1}}` (or whatever version Build's solve creates).
+
+- **Built-in judges** — three judges ship: **Accuracy** (`$ld:ai:judge:accuracy`), **Relevance** (`$ld:ai:judge:relevance`), and **Toxicity** (`$ld:ai:judge:toxicity` with `isInverted: true`). The Evaluate scope mentioned only accuracy + relevance; toxicity is bonus material worth including in ch02. Judges can only attach to **completion-mode** Configs in the UI (Otto qualifies). Attachment is via REST PATCH on the variation: `judgeConfiguration: { judges: [{ judgeConfigKey, samplingRate }, ...] }`. The `judges` array **replaces** the existing set per call — multi-judge attachments are a single call, not incremental. The MCP `create-ai-config-variation` and `update-ai-config-variation` both accept `judgeConfiguration`.
+
+- **Multi-custom-judge on one variation** — supported as long as the judges have **distinct `evaluationMetricKey` values**. 422 if two judges share a metric key. Challenge 03's brand-voice judge and challenge 04's product-claim judge use different metric keys, so they coexist fine.
+
+- **Prompt experiment shape** — first-class on AgentControl Configs via the `create-experiment` MCP tool. The iteration's `treatments` reference `{flagKey, variationId}` pairs where `flagKey` is the Config key. Treatments must sum to 100% allocation; one must be `baseline: true`. Metrics array specifies the experiment outcome metric key. A `primarySingleMetricKey` or `primaryFunnelKey` picks the headline metric. `start-experiment-iteration` begins data collection.
+
+- **Adaptive-switching REST surface** — `update-ai-config-targeting-rules` exposes semantic-patch instructions: `addRule`, `removeRule`, `addClauses`, `removeClauses`, `reorderRules`, `replaceRules`, `updateClause` (+ others). `update-ai-config-rollout` updates the fallthrough (percentage or single-variation). For ch08, leaning toward `update-ai-config-rollout` with `rolloutType: "variation"` to flip Otto's fallthrough to a safe-mode variation when the rolling-window threshold trips. Trigger source: in-process rolling window (simplest; avoids the polling round-trip).
+
+- **Guarded rollout API** — `start-guarded-rollout` MCP tool exists (`testVariationId`, `controlVariationId`, `randomizationUnit`, `stages` with `rolloutWeight` in thousandths + `monitoringWindowMilliseconds`, `metrics` array with `regressionThreshold` + `onRegression: {notify, rollback}`). The DECISIONS.md entry "Guarded rollout configured by the learner, not pre-built" stated the API was not publicly documented at authoring time — that finding is **now obsolete**. The Evaluate ch07 can either pre-start the rollout via Terraform (cleaner setup but removes a UI-driven lab beat) or keep the original "learner clicks the button in the UI" approach (pedagogically richer; recommend keeping). Either way, the scripted-fallback path now exists.
+
+- **`create_judge()` + `judge.evaluate()` provider plugins (the SDK auto-eval flow)** — confirmed obsolete pattern from the legacy `DECISIONS.md` entry "Judge invocation: SDK eval + manual Bedrock call." The auto-eval flow relies on a provider plugin system (langchain, openai); as of the current SDK version, **no Bedrock provider plugin exists**. The legacy Build ch07 sidesteps this by calling `ai_client.judge_config(...)` to fetch the judge's prompt/model and then invoking `bedrock.converse()` manually. Evaluate's custom judges (ch03 + ch04) follow the same manual pattern — clean for the workshop, no new credentials.
+
+- **Custom judge invocation in the app process** — confirmed via the LD docs ("Online evaluations run using your configured model provider credentials") and the online-evals skill examples. The judge model runs in the app's process, billed against the app's credentials. For ToggleWear that means Bedrock — fine.
+
+### Implications for the scope doc
+
+- **Built-in judges (ch02)** — the implicit question of whether built-in judges trigger auto-eval (and therefore need a non-Bedrock provider) remains. If LD hosts the built-in judges server-side and they don't need an app-side provider, ch02 works as written. If they invoke a model in the app's process via auto-eval, ch02 needs either an OpenAI/Anthropic-direct credential added to the lab or a fallback to the manual flow. **Verify in Phase 1's smoke test** before committing to the ch02 design.
+- **Custom judges (ch03 + ch04)** — confirmed to use the manual invocation pattern (`judge_config()` + `bedrock.converse()` + emit metric via `tracker.track_judge_result()` or raw `ld_client.track()`). Pattern reuses the legacy Build ch07 `judge-server-paste.py` mostly unchanged. No new credentials.
+- **ch07 guarded rollout lift** — `start-guarded-rollout` MCP availability means we have a scripted fallback if the UI flow has issues during click-through. Keep the "learner starts it from the UI" approach as primary; the scripted path is a presenter escape hatch.
+
+### Still pending
+
+- **Dataset upload mechanics** (Task #3) — `create-dataset` returns a pre-signed upload URL according to the tool description; the upload mechanics (HTTP PUT? required headers? content-type per format?) aren't documented in the tool schema. Plan: invoke `create-dataset` against a sandbox project in Phase 1 to inspect the returned URL and probe the upload contract.
+- **Built-in judge evaluation execution location** — does LD host built-in judge models, or do they run in the app process via the SDK provider plugin system? Affects whether ch02 needs a new credential. Defer to Phase 1 smoke test.
+- **Operator-only UI verification items** — UI step counts and button labels for: dataset upload page, evaluation results panel, built-in judge attachment UI, experiment results panel, guarded rollout configuration UI. None of these block scoping; they're verified during each phase's click-through pass.
+
+### Bonus surface improvements over the legacy DECISIONS.md notes
+
+- The `DECISIONS.md` entry "Guarded rollout configured by the learner, not pre-built" is **partially obsolete** as of this Phase 0 — the API exists. Pedagogically the entry still stands (the lab is more useful when the learner configures the rollout themselves), but the operator escape-hatch is now scripted-clean rather than UI-only.
+- The `DECISIONS.md` entry "AI Config snippet-reference syntax: deferred to operator verification" is **now resolved** — `{{snippet.<key>#<version>}}` is the literal token. The four files listed in that entry (`instruqt-build/03-otto-on-brand/assignment.md`, `instruqt-build/05-otto-for-everyone/assignment.md`, `terraform/challenge-03/main.tf`, `terraform/challenge-05/main.tf`) need updating to the real syntax. Surface this to the operator as a Build hotfix.
