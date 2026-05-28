@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Populate the AI Configs monitoring view with synthetic chat traffic.
+"""Populate the AgentControl monitoring view with synthetic chat traffic.
 
-This script does NOT call Bedrock. It evaluates the otto-assistant AI Config
+This script does NOT call Bedrock. It evaluates the otto-assistant Config
 once per simulated session to obtain a real LDAI tracker, then emits the
 metric events the monitoring view consumes (tokens, duration, success,
 thumbs-up/thumbs-down) using random-but-realistic values weighted per model.

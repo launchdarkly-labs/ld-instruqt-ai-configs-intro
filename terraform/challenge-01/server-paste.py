@@ -1,14 +1,14 @@
-    # Build context, evaluate the otto-assistant AI Config.
+    # Build context, evaluate the otto-assistant Config.
     context = Context.builder(req.session_id).set("tier", req.user_tier).build()
     cfg = ai_client.completion_config(OTTO_CONFIG_KEY, context, FALLBACK_CONFIG)
 
     if not cfg.enabled or cfg.model is None:
         return JSONResponse(status_code=503, content={
-            "response": "Otto isn't enabled. Check the AI Config targeting.",
+            "response": "Otto isn't enabled. Check the Config targeting.",
             "turn": turn, "turn_limit": TURN_LIMIT,
         })
 
-    # Translate the AI Config's messages into Bedrock Converse format.
+    # Translate the Config's messages into Bedrock Converse format.
     system_blocks = []
     seed_messages = []
     for m in cfg.messages or []:

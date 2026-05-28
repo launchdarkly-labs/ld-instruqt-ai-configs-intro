@@ -44,7 +44,7 @@ The narrative is light-touch — it lives in section intros and in transitions b
 
 **Things to do:**
 - Use first-person plural when describing project moves ("We're going to give Otto a personality").
-- Use second-person imperative for steps ("Click the **Create AI Config** button").
+- Use second-person imperative for steps ("Click the **Create Config** button").
 - Bold the literal text the learner sees in the UI: "click **Review and save**".
 - Put text the learner types or pastes in fenced code blocks (with language hint if applicable).
 - Reference tabs by index: `[LaunchDarkly](#tab-0)`, `[ToggleWear](#tab-1)`, `[Code Editor](#tab-2)`.
@@ -138,7 +138,7 @@ After extraction, Otto's main prompt becomes thinner — something like:
 >
 > {{safety_rules}}
 
-The exact snippet-reference syntax depends on the AI Configs snippets feature — verify the actual templating syntax during Phase 4.
+The exact snippet-reference syntax depends on AgentControl's snippets feature — verify the actual templating syntax during Phase 4.
 
 ---
 
@@ -192,7 +192,7 @@ That prompt makes Nova Pro produce stiff, formal, overlong responses — driftin
 
 ## Wrap-up / Otto's ending
 
-In the wrap-up, briefly review Otto's arc — he was born plain, got a voice, got reusable on-brand pieces, got tier-aware variations, got measured, and got a guardian (the judge). The takeaway: AI Configs let you treat AI behavior the way LaunchDarkly already lets you treat features — controllable, observable, safe to change.
+In the wrap-up, briefly review Otto's arc — he was born plain, got a voice, got reusable on-brand pieces, got tier-aware variations, got measured, and got a guardian (the judge). The takeaway: AgentControl lets you treat AI behavior the way LaunchDarkly already lets you treat features — controllable, observable, safe to change.
 
 End on Otto's voice — a closing line *as Otto* would be on-theme. Something like:
 
@@ -207,6 +207,6 @@ Use that, or something better. The point is: end with a wink rather than a corpo
 - Otto's name. Never "the assistant," "the bot," or "the chatbot" in narrative copy. Just "Otto." (In technical contexts — "the chat widget" or "the chatbot UI" — that's fine.)
 - ToggleWear is one word, capitalized as shown.
 - The user-tier values in code are `free` and `premium` (lowercase). In UI copy: "Free user" and "Premium user."
-- AI Config keys (lowercase-hyphenated): `otto-assistant`, `otto-response-judge`.
+- Config keys (lowercase-hyphenated): `otto-assistant`, `otto-response-judge`.
 - Snippet keys: `brand-voice`, `safety-rules`.
-- Metric key for the judge: `otto-quality-score` (or similar — verify naming conventions for AI Configs metrics in Phase 7).
+- Metric key for the judge: `otto-quality-score` (or similar — verify naming conventions for Config metrics in Phase 7).

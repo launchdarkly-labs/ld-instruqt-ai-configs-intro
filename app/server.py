@@ -1,7 +1,7 @@
 """ToggleWear server.
 
 The /chat endpoint contains a marked block that the learner replaces in
-Challenge 01 to wire Otto up to the otto-assistant AI Config and Bedrock.
+Challenge 01 to wire Otto up to the otto-assistant Config and Bedrock.
 Imports, clients, helpers, and turn-cap logic are all pre-wired.
 """
 import logging
@@ -13,7 +13,7 @@ from typing import Optional
 
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
-from dotenv import dotenv_values, load_dotenv
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -22,14 +22,10 @@ from ldclient import Context, LDClient
 from ldclient.config import Config as LDConfig
 from pydantic import BaseModel
 
-# override=True so .env wins over any stale AWS_* or LD_* values left in the
-# shell from a previous session. load_dotenv only overrides keys it sets, so
-# values absent from .env (e.g. AWS_SESSION_TOKEN when using long-lived IAM
-# keys) still leak from the shell — clear them explicitly below.
-_dotenv_keys = set(dotenv_values().keys())
+# override=True so .env wins over stale LD_* values from a previous shell
+# session. AWS credentials come from the BedrockProfile (set up via GCP→AWS
+# federation), so we deliberately do NOT touch AWS_* in os.environ here.
 load_dotenv(override=True)
-if "AWS_SESSION_TOKEN" not in _dotenv_keys:
-    os.environ.pop("AWS_SESSION_TOKEN", None)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 log = logging.getLogger("togglewear")
 
@@ -153,7 +149,7 @@ def _bedrock_user_message(code: Optional[str]) -> str:
     if code == "AccessDeniedException":
         return "Otto can't reach his model — please check AWS credentials and Bedrock model access."
     if code == "ValidationException":
-        return "Otto's AI Config has an invalid setting. Please verify the model ID and variation."
+        return "Otto's Config has an invalid setting. Please verify the model ID and variation."
     return "Otto hit an unexpected error. Please try again."
 
 

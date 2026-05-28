@@ -38,7 +38,7 @@ resource "launchdarkly_ai_config_variation" "otto_premium" {
 }
 
 # Add a targeting rule: contexts with tier=premium → otto-premium.
-# AI Config targeting isn't yet in the Terraform provider — use semantic patch.
+# Config targeting isn't yet in the Terraform provider — use semantic patch.
 resource "null_resource" "add_premium_rule" {
   triggers = {
     variation_id = launchdarkly_ai_config_variation.otto_premium.variation_id

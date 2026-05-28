@@ -1,5 +1,5 @@
     # ─── Challenge 07: judge evaluates Otto's response ─────────────────────
-    # Score Otto's response 1-5 with the otto-response-judge AI Config, then
+    # Score Otto's response 1-5 with the otto-response-judge Config, then
     # emit the score as an otto-quality-score metric event. Errors are
     # swallowed — a judge failure should not poison a user's chat.
     try:

@@ -1,7 +1,7 @@
 # End-state for Challenge 01 — "Otto is born".
 #
 # Creates the Haiku 4.5 model config in the per-student project, the
-# otto-assistant AI Config, its initial bland "born" variation, and sets the
+# otto-assistant Config, its initial bland "born" variation, and sets the
 # `test` environment's fallthrough variation so the SDK serves it.
 
 resource "launchdarkly_model_config" "haiku" {
@@ -36,7 +36,7 @@ resource "launchdarkly_ai_config_variation" "otto_born" {
   }
 }
 
-# The Terraform provider doesn't expose AI Config targeting yet — use the
+# The Terraform provider doesn't expose Config targeting yet — use the
 # semantic-patch REST endpoint to set the test environment's fallthrough.
 resource "null_resource" "set_test_fallthrough" {
   triggers = {

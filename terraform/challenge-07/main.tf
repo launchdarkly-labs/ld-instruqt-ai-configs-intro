@@ -6,7 +6,7 @@
 #   * Amazon Nova Pro model_config + a third Otto variation ("Stiff") with a
 #     deliberately off-brand prompt that should drift away from the warm/
 #     helpful brand voice the judge is grading against.
-#   * otto-response-judge AI Config (mode = judge) backed by Haiku 4.5 with
+#   * otto-response-judge Config (mode = judge) backed by Haiku 4.5 with
 #     a 1-to-5 scoring prompt that substitutes the evaluated response in via
 #     the `{{response}}` template variable.
 #   * otto-quality-score numeric custom metric.
@@ -64,7 +64,7 @@ resource "launchdarkly_ai_config_variation" "otto_stiff" {
   }
 }
 
-# ─── Judge AI Config ───────────────────────────────────────────────────────
+# ─── Judge Config ──────────────────────────────────────────────────────────
 
 resource "launchdarkly_ai_config" "judge" {
   project_key = var.project_key
