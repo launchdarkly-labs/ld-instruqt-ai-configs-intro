@@ -1,4 +1,6 @@
 #!/bin/bash
-
-cd /opt/ld/terraform-ld-student
-terraform destroy -auto-approve
+# BYO-credentials variant: the project lives in the LEARNER'S OWN LaunchDarkly
+# account, so we do NOT auto-destroy it — they may want to inspect it after.
+# To remove it later: delete the "ai-configs-intro-<id>" project in the
+# LaunchDarkly UI, or `DELETE /api/v2/projects/<key>` with your access token.
+exit 0

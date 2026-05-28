@@ -54,4 +54,24 @@ This track assumes you already know the LaunchDarkly basics — flags, contexts,
 
 The tabs on the right will all be useful: [LaunchDarkly](#tab-0) for the LD UI, [ToggleWear](#tab-1) for the live storefront, [Code Editor](#tab-2) for `server.py` and other repo files.
 
-Click **Check** below when you're ready to start.
+# Prerequisites
+
+This variant runs on **your own** LaunchDarkly account and **your own** AWS Bedrock access. Before you start:
+
+- A **LaunchDarkly account** with **AI Configs** enabled.
+- An **AWS account** with **Bedrock model access** enabled in the **US regions** for **Claude Sonnet 4.5**, **Claude Haiku 4.5**, **Claude 3.5 Haiku**, and **Amazon Nova Pro**. Model-access grants are not always instant — [enable them](https://docs.aws.amazon.com/bedrock/latest/userguide/model-access.html) *before* this lab.
+- AWS credentials with `bedrock:InvokeModel`. **Long-lived IAM user keys are recommended** (temporary/SSO credentials work but can expire mid-session).
+
+# Bring your own credentials
+
+1. Open the [LaunchDarkly](#tab-0) tab and log in to your own LaunchDarkly account.
+2. Create an API access token: **Account settings → Authorization → Access tokens → Create token**, role **Writer** (or higher — a Reader token will pass this step but fail later challenges).
+3. Open the [Code Editor](#tab-2) tab and open **`app/.env`**.
+4. Fill in and **save**:
+   - `LAUNCHDARKLY_ACCESS_TOKEN=` your token from step 2
+   - `AWS_ACCESS_KEY_ID=` / `AWS_SECRET_ACCESS_KEY=` your AWS keys (set `AWS_SESSION_TOKEN` too *only* for temporary/SSO creds)
+   - leave `AWS_REGION=us-east-1`, and leave `LD_SDK_KEY` / `LD_PROJECT_KEY` blank — Check fills them in.
+
+> These values are visible on screen as you paste. Use a short-lived token and revoke it after.
+
+Click **Check** below. It validates your credentials, creates your project (`ai-configs-intro-<id>`) in your account, wires the app to it, and confirms Bedrock works.

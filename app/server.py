@@ -13,7 +13,7 @@ from typing import Optional
 
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
-from dotenv import dotenv_values, load_dotenv
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -22,14 +22,10 @@ from ldclient import Context, LDClient
 from ldclient.config import Config as LDConfig
 from pydantic import BaseModel
 
-# override=True so .env wins over any stale AWS_* or LD_* values left in the
-# shell from a previous session. load_dotenv only overrides keys it sets, so
-# values absent from .env (e.g. AWS_SESSION_TOKEN when using long-lived IAM
-# keys) still leak from the shell — clear them explicitly below.
-_dotenv_keys = set(dotenv_values().keys())
+# override=True so .env (the learner's pasted credentials) wins over any stale
+# values left in the shell. AWS_SESSION_TOKEN is optional — blank for long-lived
+# IAM keys, set for temporary/SSO creds — and is coerced to None below.
 load_dotenv(override=True)
-if "AWS_SESSION_TOKEN" not in _dotenv_keys:
-    os.environ.pop("AWS_SESSION_TOKEN", None)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 log = logging.getLogger("togglewear")
 
@@ -37,7 +33,7 @@ STATIC_DIR = Path(__file__).parent / "static"
 OTTO_CONFIG_KEY = "otto-assistant"
 TURN_LIMIT = int(os.getenv("LD_CHAT_TURN_LIMIT", "30"))
 HISTORY_LIMIT = 20  # last N user/assistant messages per session
-LD_SDK_KEY = os.environ["LD_SDK_KEY"]
+LD_SDK_KEY = os.environ.get("LD_SDK_KEY", "")
 AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
 
 ld_client = LDClient(LDConfig(LD_SDK_KEY))
@@ -49,7 +45,7 @@ bedrock = boto3.client(
     region_name=AWS_REGION,
     aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
     aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
-    aws_session_token=os.environ.get("AWS_SESSION_TOKEN"),
+    aws_session_token=os.environ.get("AWS_SESSION_TOKEN") or None,
 )
 
 FALLBACK_CONFIG = AICompletionConfigDefault(enabled=False)

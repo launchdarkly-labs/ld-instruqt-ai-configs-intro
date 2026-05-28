@@ -1,2 +1,115 @@
-#!/bin/sh
+#!/bin/bash
+#
+# Welcome Check (BYO-credentials variant). The learner pastes their own
+# LaunchDarkly access token + AWS credentials into app/.env. This Check then:
+#   1. validates the pasted values,
+#   2. creates their LaunchDarkly project (idempotent terraform apply),
+#   3. writes LD_SDK_KEY + LD_PROJECT_KEY back into .env,
+#   4. exports the token + project key to the shell profiles so every later
+#      challenge's check/setup/solve script can authenticate (same mechanism
+#      the reference track uses for LD_PROJECT_KEY),
+#   5. restarts the app, and
+#   6. smoke-tests Bedrock so a missing model grant fails HERE, not in ch01.
+set -o pipefail
+
+REPO=/opt/ld/ai-configs-intro
+APP_ENV="$REPO/app/.env"
+BOOTSTRAP="$REPO/terraform/student-bootstrap"
+VENV="$REPO/app/.venv"
+HAIKU="us.anthropic.claude-haiku-4-5-20251001-v1:0"
+
+# Load whatever the learner has pasted into .env so far.
+set -a
+[ -f "$APP_ENV" ] && . "$APP_ENV"
+set +a
+
+# 1. Require the learner-supplied values.
+missing=""
+[ -z "${LAUNCHDARKLY_ACCESS_TOKEN:-}" ] && missing="$missing LAUNCHDARKLY_ACCESS_TOKEN"
+[ -z "${AWS_ACCESS_KEY_ID:-}" ]         && missing="$missing AWS_ACCESS_KEY_ID"
+[ -z "${AWS_SECRET_ACCESS_KEY:-}" ]     && missing="$missing AWS_SECRET_ACCESS_KEY"
+if [ -n "$missing" ]; then
+  fail-message "Paste your credentials into **app/.env** in the Code Editor and save, then click Check again. Missing:${missing}"
+  exit 1
+fi
+
+# 2. Validate the LD token before spending a terraform run on it.
+if ! curl -fsS "https://app.launchdarkly.com/api/v2/projects?limit=1" \
+      -H "Authorization: ${LAUNCHDARKLY_ACCESS_TOKEN}" >/dev/null 2>&1; then
+  fail-message "That LaunchDarkly access token was rejected. Create a **Writer** token under Account settings -> Authorization -> Access tokens and paste it into app/.env."
+  exit 1
+fi
+
+# 3. Provision the learner's project in their own account (idempotent).
+PROJECT_KEY="ai-configs-intro-${_SANDBOX_ID}"
+cd "$BOOTSTRAP" || { fail-message "Bootstrap module missing on the image."; exit 1; }
+echo "sandbox_id = \"${_SANDBOX_ID}\"" > terraform.tfvars
+terraform init -input=false >/dev/null 2>&1
+if ! terraform apply -auto-approve >/tmp/bootstrap.log 2>&1; then
+  # Most likely the project already exists from a prior Check — verify + continue.
+  if ! curl -fsS "https://app.launchdarkly.com/api/v2/projects/${PROJECT_KEY}" \
+        -H "Authorization: ${LAUNCHDARKLY_ACCESS_TOKEN}" >/dev/null 2>&1; then
+    fail-message "Couldn't create your LaunchDarkly project. Confirm your token has the **Writer** role and your account can create projects. Details in /tmp/bootstrap.log."
+    exit 1
+  fi
+fi
+TF_KEY="$(terraform output -json 2>/dev/null | jq -r '.students.value[0].project_key' 2>/dev/null)"
+[ -n "$TF_KEY" ] && [ "$TF_KEY" != "null" ] && PROJECT_KEY="$TF_KEY"
+
+# 4. Fetch the test-env SDK key from the learner's account.
+SDK_KEY="$(curl -fsS "https://app.launchdarkly.com/api/v2/projects/${PROJECT_KEY}/environments/test" \
+  -H "Authorization: ${LAUNCHDARKLY_ACCESS_TOKEN}" | jq -r '.apiKey')"
+if [ -z "$SDK_KEY" ] || [ "$SDK_KEY" = "null" ]; then
+  fail-message "Your project was created but its SDK key couldn't be read. Click Check again."
+  exit 1
+fi
+
+# 5. Write the auto-filled values back into .env (idempotent).
+if grep -q '^LD_SDK_KEY=' "$APP_ENV"; then
+  sed -i "s|^LD_SDK_KEY=.*|LD_SDK_KEY=${SDK_KEY}|" "$APP_ENV"
+else
+  printf '\nLD_SDK_KEY=%s\n' "$SDK_KEY" >> "$APP_ENV"
+fi
+if grep -q '^LD_PROJECT_KEY=' "$APP_ENV"; then
+  sed -i "s|^LD_PROJECT_KEY=.*|LD_PROJECT_KEY=${PROJECT_KEY}|" "$APP_ENV"
+else
+  printf 'LD_PROJECT_KEY=%s\n' "$PROJECT_KEY" >> "$APP_ENV"
+fi
+
+# 6. Make token + project key available to later challenge scripts via the
+#    shell profiles (idempotent — strip any prior lines first).
+for rc in "$HOME/.profile" "$HOME/.bashrc"; do
+  touch "$rc"
+  { grep -v -e '^export LD_PROJECT_KEY=' -e '^export LAUNCHDARKLY_ACCESS_TOKEN=' "$rc" || true; } > "$rc.tmp"
+  mv "$rc.tmp" "$rc"
+  printf 'export LD_PROJECT_KEY=%s\n' "$PROJECT_KEY" >> "$rc"
+  printf 'export LAUNCHDARKLY_ACCESS_TOKEN=%s\n' "$LAUNCHDARKLY_ACCESS_TOKEN" >> "$rc"
+done
+
+# 7. Restart so the app picks up the SDK key + AWS creds.
+service togglewear restart
+
+# 8. Bedrock smoke test on Haiku 4.5 — confirms keys + region + model access.
+#    AWS_* are already exported into this shell from .env (step set -a).
+if ! "$VENV/bin/python" - "$HAIKU" <<'PY'
+import os, sys, boto3
+model = sys.argv[1]
+c = boto3.client(
+    "bedrock-runtime",
+    region_name=os.environ.get("AWS_REGION", "us-east-1"),
+    aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
+    aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
+    aws_session_token=os.environ.get("AWS_SESSION_TOKEN") or None,
+)
+c.converse(
+    modelId=model,
+    messages=[{"role": "user", "content": [{"text": "hi"}]}],
+    inferenceConfig={"maxTokens": 5},
+)
+PY
+then
+  fail-message "Your AWS credentials can't invoke Bedrock (Claude Haiku 4.5) in ${AWS_REGION:-us-east-1}. Confirm the keys are correct and that you've enabled Bedrock model access for Claude + Nova in your account's US regions."
+  exit 1
+fi
+
 exit 0
