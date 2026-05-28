@@ -53,7 +53,7 @@ Otto v2 (Premium)
 ```text
 otto-premium
 ```
-4. Under **Model**, pick **Anthropic** → **claude-sonnet-4-6**.
+4. Under **Model**, choose the **Bedrock** provider → **anthropic.claude-sonnet-4-5-20250929-v1:0** (a more capable model than Born's Haiku). Pick it under **Bedrock**, not the "Anthropic" provider.
 5. In prompt text area, make sure **System** is selected, then click **Load snippet** and select **Brand voice**.
 6. Below that, enter the following text:
 

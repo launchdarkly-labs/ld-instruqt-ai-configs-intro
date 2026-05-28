@@ -71,8 +71,22 @@ BEDROCK_MODEL_IDS = {
 
 
 def resolve_bedrock_model(ld_model_name: str) -> str:
-    """Map LD's vendor-neutral model name to a Bedrock model ID. Pass-through if unknown."""
-    return BEDROCK_MODEL_IDS.get(ld_model_name, ld_model_name)
+    """Resolve an LD model name to a Bedrock model ID usable with `converse`.
+
+    Known names map explicitly (above). For any other bare Bedrock provider ID
+    (e.g. anthropic.*, amazon.*), prepend the US cross-region inference-profile
+    prefix `us.`, which on-demand invocation of these models requires. This lets
+    BYO learners pick *any* Bedrock model in the LD UI without maintaining an
+    exhaustive map. IDs that already carry a region prefix are used as-is.
+    """
+    if ld_model_name in BEDROCK_MODEL_IDS:
+        return BEDROCK_MODEL_IDS[ld_model_name]
+    provider = ld_model_name.split(".", 1)[0]
+    if provider in ("us", "eu", "apac"):
+        return ld_model_name
+    if provider in ("anthropic", "amazon", "meta", "mistral", "deepseek", "cohere"):
+        return f"us.{ld_model_name}"
+    return ld_model_name
 
 _turns: dict[str, int] = defaultdict(int)
 _history: dict[str, deque] = defaultdict(lambda: deque(maxlen=HISTORY_LIMIT))

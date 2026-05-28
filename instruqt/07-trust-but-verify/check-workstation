@@ -10,10 +10,9 @@ if [ -z "$STIFF_MODEL" ]; then
   fail-message "The **Otto v3 (Stiff)** variation hasn't been created yet. Re-run setup."
   exit 1
 fi
-if [ "$STIFF_MODEL" != "Amazon.nova-pro" ]; then
-  fail-message "The Stiff variation isn't using Nova Pro. Expected modelConfigKey **Amazon.nova-pro**, got **${STIFF_MODEL}**."
-  exit 1
-fi
+# BYO: any model is fine for the "stiff" rollout variation — the lab's point is
+# rolling out a *different* model behind the judge, not a specific one. The
+# non-empty check above already confirms the variation has a model.
 
 # 2. otto-response-judge AI Config exists in judge mode.
 JUDGE=$(curl -s -X GET \
