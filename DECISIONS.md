@@ -261,13 +261,21 @@ A second marker (`# ─── Challenge 07 judge injects below this marker ─�
 
 ---
 
-## Config snippet-reference syntax: deferred to operator verification
+## Config snippet-reference syntax — RESOLVED 2026-05-28
 
-**Decision:** Phase 4 / Challenge 03 introduces prompt snippets via REST (the Terraform provider doesn't expose them yet). The reference syntax for embedding a snippet in a variation message — i.e. what token the UI/SDK expects — isn't documented anywhere I could find at authoring time. The placeholder `{{ldsnippet.<key>}}` is used throughout, with `<!-- VERIFY -->` markers in the assignment and Terraform calling it out. Operator confirms or fixes during click-through.
+**Original decision (2026-04):** Phase 4 / Challenge 03 introduced prompt snippets via REST (the Terraform provider doesn't expose them yet). The reference syntax for embedding a snippet in a variation message wasn't documented anywhere findable at authoring time. The placeholder `{{ldsnippet.<key>}}` was used throughout, with `<!-- VERIFY -->` markers in the assignment and Terraform calling it out.
 
-**Rationale:** Spent significant time searching docs, OpenAPI, and SDK source — no canonical reference. Authoring against a placeholder is faster than blocking the whole phase on this single detail; the marker pattern (already a documented project convention) handles the verification gap.
+**Resolution (2026-05-28, Phase 0 of Track 2 / Evaluate scoping):** Confirmed via the official LD docs at `https://launchdarkly.com/docs/home/agentcontrol/snippets`. The literal syntax is:
 
-**Where this lives:** `instruqt-build/03-otto-on-brand/assignment.md`, `instruqt-build/05-otto-for-everyone/assignment.md`, `terraform/challenge-03/main.tf`, `terraform/challenge-05/main.tf`. Update all four locations together when the real syntax is confirmed.
+```
+{{snippet.<key>#<version>}}
+```
+
+Version-pinned. Whether omitting the version resolves to "latest" is not documented in the canonical example; the safe convention is to pin (the example uses `#version-number` explicitly). For Build, the snippets are created at version 1 by `terraform/challenge-03/main.tf`'s REST POST, so all references pin to `#1`.
+
+**Hotfix applied:** Replaced placeholders in `terraform/challenge-03/main.tf`, `terraform/challenge-05/main.tf`, and `instruqt-build/03-otto-on-brand/assignment.md` (challenge 05's assignment.md doesn't quote the literal markup — the learner gets it inserted via the UI's **Load snippet** button). VERIFY comments in the two .tf files removed.
+
+**Side benefit:** Evaluate's brand-voice judge prompt now has a clean reference convention (`{{snippet.brand-voice#1}}`) baked into the scope before authoring starts.
 
 ---
 

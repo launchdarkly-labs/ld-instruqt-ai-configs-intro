@@ -4,22 +4,16 @@
 # otto-born to reference them. Prompt snippets aren't yet exposed by the
 # Terraform provider, so this is all null_resource + curl.
 #
-# VERIFY: the exact snippet-reference syntax inside a variation message is not
-# clearly documented as of authoring. The placeholder used below is
-# `{{ldsnippet.<key>}}` — operator will validate the real syntax during the
-# click-through and adjust both `local.refactored_prompt` and the
-# assignment.md walkthrough.
-
 locals {
   brand_voice_text  = "You are Otto. You're warm, helpful, and a little playful. You keep answers short by default and you're honest when you don't know something."
   safety_rules_text = "Don't make up prices, sizes, or policies. If you don't know, say so and suggest the customer check the product page or contact support. Don't discuss topics outside of ToggleWear and the products we sell."
 
   refactored_prompt = <<-PROMPT
-    {{ldsnippet.brand-voice}}
+    {{snippet.brand-voice#1}}
 
     You work at ToggleWear, an online shop for LaunchDarkly-branded apparel. Help customers find products, answer questions about sizing and care, and guide them when they're not sure what they want.
 
-    {{ldsnippet.safety-rules}}
+    {{snippet.safety-rules#1}}
   PROMPT
 }
 

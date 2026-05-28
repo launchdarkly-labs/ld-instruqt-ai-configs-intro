@@ -87,7 +87,7 @@ Don't make up prices, sizes, or policies. If you don't know, say so and suggest 
 1. Navigate back to **Configs** → **Otto Assistant** → **Otto v1 (Born)**.
 2. In the **System** prompt text area, clear out the existing text.
 3. Click **Load snippet**, and select **Brand voice**.
-4. Below the `{{ldsnippet.brand-voice}}` markup, enter the following:
+4. Below the `{{snippet.brand-voice#1}}` markup that the editor inserts, enter the following:
 ```text
 You work at ToggleWear, an online shop for LaunchDarkly-branded apparel. Help customers find products, answer questions about sizing and care, and guide them when they're not sure what they want.
 ```

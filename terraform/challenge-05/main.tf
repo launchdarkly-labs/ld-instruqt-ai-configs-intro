@@ -10,17 +10,14 @@
 #
 # Anthropic.claude-sonnet-4-5 is a GLOBAL model config (shipped by LD), so
 # unlike Haiku we don't have to create it ourselves.
-#
-# VERIFY: the `{{ldsnippet.<key>}}` reference syntax is a placeholder shared
-# with challenge-03. Adjust here too if the click-through reveals it differs.
 
 locals {
   premium_prompt = <<-PROMPT
-    {{ldsnippet.brand-voice}}
+    {{snippet.brand-voice#1}}
 
     You work at ToggleWear and you're talking to a premium customer. Take a little more time with them. Offer thoughtful recommendations, mention complementary items when relevant, and share interesting product details (materials, care, the story behind a design). You can be a bit warmer and more conversational.
 
-    {{ldsnippet.safety-rules}}
+    {{snippet.safety-rules#1}}
   PROMPT
 }
 
