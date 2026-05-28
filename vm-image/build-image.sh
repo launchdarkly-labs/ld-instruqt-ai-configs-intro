@@ -81,7 +81,7 @@ RestartSec=1
 User=root
 WorkingDirectory=/opt/ld/ai-configs-intro/app
 EnvironmentFile=/opt/ld/ai-configs-intro/app/.env
-ExecStart=/opt/ld/ai-configs-intro/app/.venv/bin/uvicorn server:app --host 0.0.0.0 --port 3000
+ExecStart=/opt/ld/ai-configs-intro/app/.venv/bin/uvicorn server:app --host 0.0.0.0 --port 3000 --reload
 
 [Install]
 WantedBy=multi-user.target

@@ -24,7 +24,7 @@ The script is idempotent enough to re-run on the same VM (it `rm -rf`s the clone
 | Python venv | `/opt/ld/ai-configs-intro/app/.venv/` | `pip install -r app/requirements.txt`. Used by both the FastAPI server and the traffic generators (no second venv). |
 | Seeded `.env` | `/opt/ld/ai-configs-intro/app/.env` | Copied from `.env.example`; track-level `setup-workstation` `sed`s real values in at lab start. |
 | Bootstrap TF init | `/opt/ld/ai-configs-intro/terraform/student-bootstrap/` | `terraform init` runs at bake time so lab start is fast. |
-| `togglewear.service` | `/etc/systemd/system/togglewear.service` | Enabled at boot; runs `uvicorn server:app --host 0.0.0.0 --port 3000`. |
+| `togglewear.service` | `/etc/systemd/system/togglewear.service` | Enabled at boot; runs `uvicorn server:app --host 0.0.0.0 --port 3000 --reload` (hot-reloads on `server.py` saves, which Challenge 01 relies on). |
 | `code-server.service` | `/etc/systemd/system/code-server.service` | Enabled at boot; serves on port 8080 with `--auth none`. |
 
 ## When to re-bake
