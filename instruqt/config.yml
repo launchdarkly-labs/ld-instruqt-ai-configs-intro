@@ -4,7 +4,7 @@ virtualbrowsers:
   url: https://app.launchdarkly.com
 virtualmachines:
 - name: workstation
-  image: launchdarkly/workshop-ai-configs-4
+  image: launchdarkly/workshop-aiconfigs-4
   shell: /bin/bash
   machine_type: n1-standard-2
 # BYO-credentials variant: no shared Instruqt secrets. The learner pastes their
