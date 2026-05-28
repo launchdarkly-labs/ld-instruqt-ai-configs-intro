@@ -121,3 +121,46 @@ Testing never touches production. To actually ship a fix to learners:
 3. From this repo's `instruqt/` dir (the one with the live slug/id),
    `instruqt track push` to update `ld-agentcontrol-intro` — coordinate with
    `kcochran@` first, since this is the customer-facing track.
+
+## The `fix/togglewear-autoreload` branch is the BYO-credentials variant
+
+This branch is a **personal, never-merged** variant where the **learner brings
+their own LaunchDarkly account + AWS Bedrock credentials** (Kevin owns the
+shared-secret turnkey track). Differences from the shared-secret flow above:
+
+- **No Instruqt secrets.** `config.yml` has no `secrets:` block and the LD tab
+  points at `https://app.launchdarkly.com` (learner logs into their own account).
+  So in the copy-track steps above, **skip step 6's "set secrets"** — there are
+  none to set.
+- **Credentials are pasted by the learner** into `app/.env` during the Welcome
+  challenge; ch00's Check validates them, creates their project, writes back
+  `LD_SDK_KEY`/`LD_PROJECT_KEY`, exports the token + project key to the shell
+  profiles (so later Checks authenticate), restarts the app, and smoke-tests
+  Bedrock on Haiku 4.5.
+- **Prerequisites the learner must satisfy before starting:** an LD account with
+  AI Configs enabled + a **Writer** API token; an AWS account with **Bedrock
+  model access** (US regions) for Claude Sonnet 4.5 / Haiku 4.5 / 3.5 Haiku /
+  Nova Pro; long-lived IAM keys recommended. Leave `AWS_REGION=us-east-1`.
+
+### Gotcha when copying for a BYO test
+
+`instruqt track create --from launchdarkly/ld-agentcontrol-intro` copies the
+**live** track, which is structurally **behind this branch** (e.g. it has no
+`00-welcome/`). So after creating + pulling the copy, **sync this branch's
+`instruqt/` content into it, keeping the copy's own `track.yml`** (its safe
+slug), then push:
+```sh
+SRC=<repo>/instruqt
+COPY=~/instruqt-test/<new-slug>
+rsync -a --exclude='track.yml' --exclude='*.remote' "$SRC"/ "$COPY"/
+cd "$COPY" && grep '^slug:' track.yml   # confirm it's the copy, not ld-agentcontrol-intro
+instruqt track push                     # needs the image (e.g. workshop-ai-configs-3) saved first
+```
+`push` fails with `image not found` until the image named in `config.yml` is
+saved in Settings → Host images — bake + save it first.
+
+### Test run (ch00 paste flow)
+Start the copy track, then in the Welcome challenge: log into your LD account,
+create a Writer token, paste it + your AWS keys into `app/.env`, save, and click
+**Check**. It should create `ai-configs-intro-<id>` in your account, fill in the
+SDK/project keys, and pass the Bedrock smoke test. Then continue into ch01.
