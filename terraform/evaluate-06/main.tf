@@ -33,7 +33,7 @@ resource "launchdarkly_ai_config_variation" "otto_recommender" {
   project_key      = var.project_key
   config_key       = "otto-assistant"
   key              = "otto-recommender"
-  name             = "Otto v4 (Recommender)"
+  name             = "Otto v3 (Recommender)"
   model_config_key = "Anthropic.claude-haiku-4-5"
 
   messages {

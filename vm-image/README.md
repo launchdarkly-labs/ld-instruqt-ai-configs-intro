@@ -49,7 +49,7 @@ Reading the per-challenge `setup-workstation` / `solve-workstation` scripts, the
 - `/opt/ld/ai-configs-intro/app/server.py` and `/opt/ld/ai-configs-intro/app/.venv/bin/python` — used by every challenge that restarts the service or invokes the traffic generators.
 - `/opt/ld/ai-configs-intro/terraform/challenge-{01,02,03,05,06,07}/*.tf` — each challenge's `setup-workstation` does `terraform init` + `terraform apply` in its own folder.
 - `/opt/ld/ai-configs-intro/terraform/challenge-01/{patch-server.py,server-paste.py}` — Challenge 01's solve uses these to patch `server.py` to the AFTER state.
-- `/opt/ld/ai-configs-intro/terraform/challenge-07/{patch-server.py,judge-server-paste.py}` — Challenge 07's setup uses these to inject the judge integration.
+- `/opt/ld/ai-configs-intro/terraform/evaluate-03/{patch-server.py,judge-server-paste.py}` and `evaluate-04/{patch-server.py,judge-server-paste.py}` — Evaluate's custom-judge challenges use these to inject the judge integration blocks.
 - `/opt/ld/ai-configs-intro/traffic-generator/{generate_traffic.py,background_traffic.py,sabotage.py,messages.txt}` — Challenge 06 setup runs `generate_traffic.py` once; Challenge 07 setup launches `background_traffic.py` via `nohup` and leaves it running for the duration of the lab.
 - `/var/log/togglewear-bg-traffic.log` — Challenge 07's background traffic generator writes here. Path must be writable by the user running setup (root in the Instruqt model).
 

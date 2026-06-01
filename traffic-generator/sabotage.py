@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Force a guarded-rollout rollback by emitting low judge scores.
+"""Force a guarded-rollout rollback by emitting low brand-voice scores.
 
-For presenter-driven demos: when the rollout's organic data is too slow to
-trigger an automatic rollback, run this to flood the otto-quality-score
-metric with 1s for the Stiff variation's typical users. Within a minute or
-two, the guarded rollout's regression detection should fire.
+For presenter-driven demos: when the rollout's organic data is too slow
+to trigger an automatic rollback, run this to flood
+otto-brand-voice-score with near-zero values. Within a minute or two,
+the guarded rollout's regression detection should fire.
 
 Usage:
     sabotage.py [N]
@@ -39,10 +39,10 @@ def main() -> int:
     if not ld_client.is_initialized():
         print("WARN: LD client did not initialize", file=sys.stderr)
 
-    print(f"Emitting {n} sabotage events (otto-quality-score = 1.0)...")
+    print(f"Emitting {n} sabotage events (otto-brand-voice-score = 0.0)...")
     for i in range(n):
         ctx = Context.builder(f"sabotage-{uuid4().hex[:8]}").set("tier", "free").build()
-        ld_client.track("otto-quality-score", ctx, None, 1.0)
+        ld_client.track("otto-brand-voice-score", ctx, None, 0.0)
         if (i + 1) % 10 == 0:
             print(f"  {i + 1}/{n}")
 

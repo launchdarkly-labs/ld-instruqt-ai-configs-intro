@@ -48,8 +48,7 @@ Each of our three tracks mirrors the structure and conventions of an existing La
 │   ├── 04-quiz-configs-and-snippets/
 │   ├── 05-otto-for-everyone/
 │   ├── 06-how-is-otto-doing/
-│   ├── 07-trust-but-verify/     # lifts to instruqt-evaluate/ when Track 2 is built
-│   ├── 08-wrap-up/
+│   ├── 07-wrap-up/
 │   └── assets/                  # images referenced from assignment.md
 ├── instruqt-evaluate/           # Track 2 — Evaluate (L2). Scope pending. See README inside.
 ├── instruqt-coordinate/         # Track 3 — Coordinate (L3). Scope pending (Phase 0 spike first).
@@ -67,8 +66,7 @@ Each of our three tracks mirrors the structure and conventions of an existing La
 │   ├── challenge-02/
 │   ├── challenge-03/
 │   ├── challenge-05/
-│   ├── challenge-06/
-│   └── challenge-07/
+│   └── challenge-06/
 ├── gcp-federation/              # AWS IAM role + GCP OIDC trust for federated Bedrock creds
 ├── traffic-generator/           # scripts run by per-challenge setup
 │   └── generate_traffic.py

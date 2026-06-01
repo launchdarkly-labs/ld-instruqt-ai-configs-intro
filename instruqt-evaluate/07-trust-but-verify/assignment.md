@@ -3,14 +3,16 @@ slug: trust-but-verify
 id: ruzv8o6xo9vb
 type: challenge
 title: Trust But Verify
-teaser: Roll out a risky variation behind a guarded rollout backed by your
-  brand-voice judge — watch it auto-revert if quality drops.
+teaser: Roll out a risky new model behind a guarded rollout backed by the
+  brand-voice judge — watch it auto-revert when quality drops.
 notes:
 - type: text
-  contents: Placeholder. Body authored during Phase 6 of PHASES-evaluate.md (this
-    challenge lifts content from `instruqt-build/07-trust-but-verify/` and rewires
-    the guarded rollout to consume the brand-voice judge metric introduced earlier
-    in Evaluate).
+  contents: A new model came in from the vendor — Amazon Nova Pro. Marketing
+    wants to try it. You want to try it too, but only if it doesn't make
+    Otto sound off-brand. This is exactly what guarded rollouts are for —
+    ship the change behind a metric, let it watch for regression, and
+    automatically roll back if quality drops. The brand-voice judge you
+    built in Challenge 03 is the metric.
 tabs:
 - id: b9pm28i81ei9
   title: LaunchDarkly
@@ -31,4 +33,61 @@ timelimit: 1200
 enhanced_loading: null
 ---
 
-<!-- Phase 6 placeholder. Body authored during PHASES-evaluate.md Phase 6 — lift from instruqt-build/07-trust-but-verify/ and rewire to the brand-voice judge metric. -->
+# What's already in place
+
+Most of this challenge is already wired:
+
+- A new variation, **Otto v4 (Stiff)**, has been added to Otto Assistant. It's backed by Amazon Nova Pro and has a deliberately corporate-sounding prompt — formal greetings, formal sign-offs, the works.
+- Background traffic is flowing at ~1 session every 2 seconds. Each session emits an `otto-brand-voice-score` event biased by which model served it. Stiff's mean is well below the others.
+- The brand-voice judge from Challenge 03 is already invoking on every real `/chat` call and contributing real scores too.
+
+Your job is to **configure a guarded rollout** that splits traffic between Otto v1 (Born) and Otto v4 (Stiff), watches the `otto-brand-voice-score` metric, and rolls back automatically if Stiff's score regresses.
+
+# Inspect what changed
+
+1. Open the [LaunchDarkly](#tab-0) tab.
+2. Go to **Configs → Otto Assistant**.
+3. Notice the new variation **Otto v4 (Stiff)** in the list. Click it to see the prompt — explicitly formal, the opposite of the brand voice.
+4. Click the **Monitoring** tab and select **otto-brand-voice-score**. You should see scores accumulating — most of them in the high range (since most traffic still goes to Born), with no contribution from Stiff yet because Stiff isn't being served to anyone.
+
+# Start the guarded rollout
+
+1. Click the **Targeting** tab. Confirm the environment is **test**.
+2. Click the **Default rule** (the fallthrough). You should see an option to **Start guarded rollout**.
+<!-- VERIFY: confirm the button is on the default-rule menu and is called "Start guarded rollout" (some LD surfaces call this "Start release"). -->
+3. Configure:
+   - **Test variation**: **Otto v4 (Stiff)**
+   - **Control variation**: **Otto v1 (Born)**
+   - **Metric to watch**: **otto-brand-voice-score**
+   - **Regression direction**: lower is worse (the metric's success criteria is HigherThanBaseline)
+   - **Stages**: 10% → 25% → 50% → 100% (or whatever the UI offers). Each stage's monitoring window should be 1-2 minutes — short enough that the rollout completes inside the lab budget.
+<!-- VERIFY: confirm exact UI labels for stages and monitoring window. -->
+4. **On regression**: choose **Rollback** (not just notify).
+5. Click **Start**.
+
+# Watch what happens
+
+The rollout starts at the first stage (10% Stiff). Background traffic flows through and the brand-voice score for the Stiff variation lands much lower than for Born. Within ~1-2 minutes, the rollout's regression detection should fire.
+
+When it does:
+
+- The rollout shows a **regression detected** event on the **Targeting** tab's rollout timeline.
+<!-- VERIFY: confirm the event surfaces here and not in a separate Events panel. -->
+- Traffic snaps back to 100% Otto v1 (Born). The Stiff variation gets dropped.
+- The monitoring view's brand-voice-score graph shows the dip during the rollout phase, then recovery after rollback.
+
+# If you want to force it
+
+Background traffic is intentionally low-rate so the lab fits in the time budget but doesn't burn through tokens. If the rollback doesn't fire fast enough for demo pacing, run the sabotage script from a terminal:
+
+```bash
+/opt/ld/ai-configs-intro/app/.venv/bin/python3 /opt/ld/ai-configs-intro/traffic-generator/sabotage.py
+```
+
+It emits 60 low-score events directly. The rollback usually fires within a minute of the sabotage finishing.
+
+# What you just saw
+
+A risky model entered production behind a metric guard. The judge you wrote in Challenge 03 — the one whose criteria came from a snippet you wrote in Build — caught the regression and rolled it back without you watching. That's the whole point: when the safety net runs itself, you can ship more aggressively.
+
+Click **Check** when the guarded rollout is configured and running.

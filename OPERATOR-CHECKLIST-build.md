@@ -60,15 +60,7 @@ For each challenge: confirm UI labels in `assignment.md` against the live LD UI;
 - [ ] Confirm the traffic generator's output produces visibly differentiated bars/lines between Otto v1 (Born) and Otto v2 (Premium) within ~30s of setup completion. If too fast/slow, tune `traffic-generator/generate_traffic.py`'s session count.
 - [ ] The assignment is exploratory; confirm the reflective questions still make sense given the monitoring view's current shape.
 
-### 07 Trust but verify
-
-**Note:** This challenge is slated to **lift into `instruqt-evaluate/`** during Phase 6 of `PHASES-evaluate.md`. Don't invest heavily in this verification pass if Evaluate's authoring is imminent — the lift will rewire the guarded rollout to consume the brand-voice judge metric introduced in `instruqt-evaluate/03-otto-sounds-like-otto/`, and several screenshots will need re-taking. Minimum verification:
-
-- [ ] Confirm setup-workstation completes without error against a post-ch06 state.
-- [ ] Confirm the assignment.md UI flow for **Start guarded rollout** lines up with the current LD UI.
-- [ ] Confirm the sabotage script (`traffic-generator/sabotage.py`) forces rollback within a presenter-friendly timeframe.
-
-### 08 Wrap-up
+### 07 Wrap-up
 
 - [ ] Confirm copy reads cleanly with no leftover "AI Configs" terminology where "AgentControl" or "Config" is now preferred.
 - [ ] Read through any final quiz questions; confirm answers list.
@@ -82,7 +74,8 @@ These are recorded for context — recent commits already addressed them.
 - `{{ldsnippet.<key>}}` → `{{snippet.<key>#<version>}}` in ch03 and ch05 Terraform + assignment.md (commit `446a543`).
 - `instruqt-build/track_scripts/setup-workstation` `cd` path corrected to match `vm-image/build-image.sh` (commit `5931319`).
 - Dead `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` secrets dropped from `instruqt-build/config.yml` (commit `5931319`).
-- Stale "API not publicly documented" comments around the guarded-rollout REST surface cleaned from `instruqt-build/07-trust-but-verify/{check,solve}-workstation` and `terraform/challenge-07/main.tf` (this commit). `start-guarded-rollout` is now a published MCP tool.
+- Stale "API not publicly documented" comments around the guarded-rollout REST surface cleaned in commit `5629fbc`. `start-guarded-rollout` is now a published MCP tool.
+- The `07-trust-but-verify` challenge **lifted to Evaluate** during Phase 6 of `PHASES-evaluate.md` and no longer lives in Build. Build now ends at the monitoring challenge (ch06), with `07-wrap-up` closing the arc and teeing up Evaluate as the next track. The old `terraform/challenge-07/` directory was removed in the same lift.
 
 ---
 

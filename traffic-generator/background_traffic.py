@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Low-rate, long-running traffic for the guarded-rollout lab.
+"""Low-rate, long-running traffic for the guarded-rollout lab (Evaluate ch07).
 
 Runs in a loop emitting one simulated session every ~2 seconds so the
 guarded rollout has organic data to evaluate against. Designed to be
@@ -7,9 +7,11 @@ launched in the background from setup-workstation and left running for
 the duration of the challenge.
 
 Sessions emit the same kind of synthetic events as generate_traffic.py
-(duration, tokens, success, feedback). The per-model positive rate also
-includes a deliberately-low value for the Nova-Pro Stiff variation so
-the judge metric drifts low when traffic hits it.
+(duration, tokens, success, feedback) PLUS an otto-brand-voice-score
+event biased per model. The per-model brand-voice mean includes a
+deliberately-low value for Nova Pro (the Stiff variation) so the
+guarded rollout's metric drifts below threshold when traffic flows
+to it.
 
 Exits cleanly on SIGTERM/SIGINT; safe to kill with `pkill -f background_traffic.py`.
 """
@@ -37,14 +39,24 @@ OTTO_CONFIG_KEY = "otto-assistant"
 RATE_SECONDS = float(os.getenv("TRAFFIC_RATE_SECONDS", "2.0"))
 PREMIUM_RATIO = float(os.getenv("TRAFFIC_PREMIUM_RATIO", "0.30"))
 
-# Per-model positive-feedback rates. Stiff (Nova Pro) scores low so the
-# guarded rollout's metric drifts below baseline when traffic flows to it.
+# Per-model positive-feedback rates. Stiff (Nova Pro) scores low so its
+# brand-voice metric drifts below baseline when traffic flows to it.
 POSITIVE_RATE = {
     "claude-sonnet-4-5": 0.92,
     "claude-haiku-4-5":  0.78,
     "nova-pro":          0.30,
 }
 DEFAULT_POSITIVE_RATE = 0.70
+
+# Per-model brand-voice score distributions (mean, std). All clipped to
+# [0.0, 1.0]. Nova Pro's mean is well below the others to drive a
+# regression detection on the guarded rollout.
+BRAND_VOICE = {
+    "claude-sonnet-4-5": (0.85, 0.06),
+    "claude-haiku-4-5":  (0.72, 0.08),
+    "nova-pro":          (0.22, 0.10),
+}
+DEFAULT_BRAND_VOICE = (0.65, 0.10)
 
 _running = True
 
@@ -105,16 +117,11 @@ def main() -> int:
             kind = FeedbackKind.Positive if random.random() < pos_rate else FeedbackKind.Negative
             tracker.track_feedback({"kind": kind})
 
-            # Emit a judge-style quality score too, weighted by model. Stiff
-            # scores 1-2 most of the time so it drives the otto-quality-score
-            # metric below the other variations.
-            if is_nova:
-                score = random.choices([1, 2, 3], weights=[60, 30, 10])[0]
-            elif is_sonnet:
-                score = random.choices([4, 5], weights=[20, 80])[0]
-            else:
-                score = random.choices([3, 4, 5], weights=[15, 45, 40])[0]
-            ld_client.track("otto-quality-score", ctx, None, float(score))
+            # Emit a brand-voice score weighted by model. Stiff (Nova Pro)
+            # drifts the metric below threshold so the guarded rollout fires.
+            mean, std = BRAND_VOICE.get(cfg.model.name, DEFAULT_BRAND_VOICE)
+            score = max(0.0, min(1.0, random.gauss(mean, std)))
+            ld_client.track("otto-brand-voice-score", ctx, None, score)
 
             sessions += 1
             if sessions % 10 == 0:

@@ -101,7 +101,7 @@ def create_experiment(project_key: str, control_id: str, contender_id: str, rule
     payload = {
         "key": EXPERIMENT_KEY,
         "name": EXPERIMENT_NAME,
-        "description": "Otto v1 (Born) vs Otto v4 (Recommender), graded on the brand-voice judge.",
+        "description": "Otto v1 (Born) vs Otto v3 (Recommender), graded on the brand-voice judge.",
         "iteration": {
             "hypothesis": "Adding a one-sentence prompt to suggest a complementary item improves brand-voice score without going off-brand.",
             "metrics": [{"key": METRIC_KEY}],

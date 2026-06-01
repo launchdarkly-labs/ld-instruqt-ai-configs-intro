@@ -45,7 +45,7 @@ Open the [LaunchDarkly](#tab-0) tab.
 2. Click **Add variation**.
 3. **Name**:
 ```text
-Otto v4 (Recommender)
+Otto v3 (Recommender)
 ```
 4. **Key**:
 ```text
@@ -84,7 +84,7 @@ Adding a one-sentence prompt to suggest a complementary item improves brand-voic
 <!-- VERIFY: confirm experiment creation lets you pick a rule and the default rule appears as an option. -->
 8. **Treatments**:
    - **Control**: Otto v1 (Born), 50%, baseline.
-   - **Contender**: Otto v4 (Recommender), 50%.
+   - **Contender**: Otto v3 (Recommender), 50%.
 9. **Randomization unit**: **user**.
 10. **Primary metric**: **otto-brand-voice-score**. Higher is better.
 11. Click **Create experiment**.
