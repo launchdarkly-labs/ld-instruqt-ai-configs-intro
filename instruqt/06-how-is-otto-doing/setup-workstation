@@ -1,4 +1,5 @@
 #!/bin/sh
+set -a; [ -f /opt/ld/ai-configs-intro/app/.env ] && . /opt/ld/ai-configs-intro/app/.env; set +a
 #
 # Populate Otto's monitoring view by simulating ~30 seconds of chat traffic
 # against the existing variations. Runs the generator synchronously so the

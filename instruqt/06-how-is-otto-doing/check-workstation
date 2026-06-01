@@ -1,4 +1,5 @@
 #!/bin/sh
+set -a; [ -f /opt/ld/ai-configs-intro/app/.env ] && . /opt/ld/ai-configs-intro/app/.env; set +a
 #
 # Challenge 06 is exploratory — the learner reads the monitoring view and
 # answers reflective questions in their head. The only thing to verify is

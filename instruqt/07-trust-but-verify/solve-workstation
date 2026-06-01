@@ -1,4 +1,5 @@
 #!/bin/sh
+set -a; [ -f /opt/ld/ai-configs-intro/app/.env ] && . /opt/ld/ai-configs-intro/app/.env; set +a
 #
 # The setup-workstation pre-builds everything except the guarded rollout
 # itself, which the learner is expected to start from the LD UI. The solve

@@ -1,4 +1,5 @@
 #!/bin/sh
+set -a; [ -f /opt/ld/ai-configs-intro/app/.env ] && . /opt/ld/ai-configs-intro/app/.env; set +a
 #
 # Solve re-runs the traffic generator, which is what setup also did. If a
 # learner skipped this challenge, they still get a populated monitoring view.

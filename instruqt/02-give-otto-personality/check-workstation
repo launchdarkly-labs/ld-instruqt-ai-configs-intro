@@ -1,4 +1,5 @@
 #!/bin/sh
+set -a; [ -f /opt/ld/ai-configs-intro/app/.env ] && . /opt/ld/ai-configs-intro/app/.env; set +a
 
 # Fetch the otto-born variation's current messages.
 VARIATION=$(curl -s -X GET \
