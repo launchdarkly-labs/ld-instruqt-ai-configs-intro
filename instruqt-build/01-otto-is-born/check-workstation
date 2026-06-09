@@ -13,7 +13,7 @@ fi
 # 2. The otto-born variation exists with a Haiku model config.
 VARIATION_MODEL=$(echo "$CONFIG" | jq -r '.variations[]? | select(.key=="otto-born") | .modelConfigKey // ""')
 if [ -z "$VARIATION_MODEL" ]; then
-  fail-message "Otto's first variation is missing. Make sure you created the variation named **Otto v1 (Born)** with key **otto-born**."
+  fail-message "Otto's first variation is missing. Make sure you created the variation named **Otto (Born)** with key **otto-born**."
   exit 1
 fi
 if [ "$VARIATION_MODEL" != "Bedrock.anthropic.claude-haiku-4-5-20251001-v1:0" ]; then
@@ -37,7 +37,7 @@ BORN_NAME=$(echo "$CONFIG" | jq -r '.variations[]? | select(.key=="otto-born") |
 FALLTHROUGH_IDX=$(echo "$TARGETING" | jq -r '.environments.test.fallthrough.variation // empty')
 FALLTHROUGH_NAME=$(echo "$TARGETING" | jq -r ".variations[${FALLTHROUGH_IDX}].name // empty")
 if [ "$FALLTHROUGH_NAME" != "$BORN_NAME" ]; then
-  fail-message "Otto's **test** environment isn't serving the Born variation. On the **Targeting** tab, set the default variation to **Otto v1 (Born)**."
+  fail-message "Otto's **test** environment isn't serving the Born variation. On the **Targeting** tab, set the default variation to **Otto (Born)**."
   exit 1
 fi
 

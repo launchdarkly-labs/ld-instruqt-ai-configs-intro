@@ -60,7 +60,7 @@ Otto Born baseline
 ```
 4. For **Dataset**, select **customer-questions.jsonl**.
 5. For **Config**, select **Otto Assistant**.
-6. For **Variations**, select **Otto v1 (Born)**. (Only the Born variation — we want to know how the cheap default Otto performs before we touch anything.)
+6. For **Variations**, select **Otto (Born)**. (Only the Born variation — we want to know how the cheap default Otto performs before we touch anything.)
 7. Click **Next** to move to the acceptance criteria step.
 
 # Configure acceptance criteria

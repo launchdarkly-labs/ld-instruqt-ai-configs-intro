@@ -19,11 +19,11 @@ CONFIG=$(curl -fsS -X GET \
 
 STIFF=$(echo "$CONFIG" | jq -r '.variations[]? | select(.key=="otto-stiff") | .modelConfigKey // ""')
 if [ -z "$STIFF" ]; then
-  fail-message "The **Otto v4 (Stiff)** Nova Pro variation hasn't been created. Re-run setup, or use the **Skip** button if setup isn't working."
+  fail-message "The **Otto (Stiff)** Nova Pro variation hasn't been created. Re-run setup, or use the **Skip** button if setup isn't working."
   exit 1
 fi
 if [ "$STIFF" != "Amazon.nova-pro" ]; then
-  fail-message "Otto v4 (Stiff) isn't using Amazon Nova Pro. Expected modelConfigKey **Amazon.nova-pro**, got **${STIFF}**."
+  fail-message "Otto (Stiff) isn't using Amazon Nova Pro. Expected modelConfigKey **Amazon.nova-pro**, got **${STIFF}**."
   exit 1
 fi
 

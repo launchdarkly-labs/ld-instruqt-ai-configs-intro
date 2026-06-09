@@ -34,7 +34,7 @@ enhanced_loading: null
 
 # Where Otto is
 
-Otto exists. He has a personality. The track setup has materialized the post-Build state in your project — Otto v1 (Born) is the default variation, Otto v2 (Premium) targets `tier: "premium"` users, the `brand-voice` and `safety-rules` snippets are in place, and ToggleWear's monitoring view already has traffic flowing through. If you completed Build, this should all feel familiar.
+Otto exists. He has a personality. The track setup has materialized the post-Build state in your project — Otto (Born) is the default variation, Otto (Premium) targets `tier: "premium"` users, the `brand-voice` and `safety-rules` snippets are in place, and ToggleWear's monitoring view already has traffic flowing through. If you completed Build, this should all feel familiar.
 
 If you skipped Build, that's fine too — everything you need is set up.
 

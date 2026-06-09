@@ -27,7 +27,7 @@ resource "launchdarkly_ai_config_variation" "otto_born" {
   project_key      = var.project_key
   config_key       = launchdarkly_ai_config.otto.key
   key              = "otto-born"
-  name             = "Otto v1 (Born)"
+  name             = "Otto (Born)"
   model_config_key = launchdarkly_model_config.haiku.key
 
   messages {

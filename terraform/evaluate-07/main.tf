@@ -34,7 +34,7 @@ resource "launchdarkly_ai_config_variation" "otto_stiff" {
   project_key      = var.project_key
   config_key       = "otto-assistant"
   key              = "otto-stiff"
-  name             = "Otto v4 (Stiff)"
+  name             = "Otto (Stiff)"
   model_config_key = launchdarkly_model_config.nova_pro.key
 
   messages {

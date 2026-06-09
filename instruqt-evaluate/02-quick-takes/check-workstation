@@ -13,7 +13,7 @@ VAR=$(curl -fsS -X GET \
 JUDGE_COUNT=$(echo "$VAR" | jq -r '.judgeConfiguration.judges // [] | length')
 
 if [ "$JUDGE_COUNT" -lt 1 ]; then
-  fail-message "No judges are attached to **Otto v1 (Born)** yet. In the LaunchDarkly UI, open the variation, find the **Judges** section, and click **Attach judges**. Pick at least one built-in (Accuracy, Relevance, or Toxicity)."
+  fail-message "No judges are attached to **Otto (Born)** yet. In the LaunchDarkly UI, open the variation, find the **Judges** section, and click **Attach judges**. Pick at least one built-in (Accuracy, Relevance, or Toxicity)."
   exit 1
 fi
 

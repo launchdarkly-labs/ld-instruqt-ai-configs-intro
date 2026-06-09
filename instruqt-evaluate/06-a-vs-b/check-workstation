@@ -14,7 +14,7 @@ CONFIG=$(curl -fsS -X GET \
 
 CONTENDER=$(echo "$CONFIG" | jq -r '.variations[]? | select(.key=="otto-recommender") | .key // ""')
 if [ -z "$CONTENDER" ]; then
-  fail-message "The **Otto v3 (Recommender)** variation hasn't been created yet. On the Otto Assistant config, click **Add variation** and use the prompt from the lab."
+  fail-message "The **Otto (Recommender)** variation hasn't been created yet. On the Otto Assistant config, click **Add variation** and use the prompt from the lab."
   exit 1
 fi
 

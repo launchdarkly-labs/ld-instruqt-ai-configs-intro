@@ -45,7 +45,7 @@ Open the [LaunchDarkly](#tab-0) tab.
 2. Click **Add variation**.
 3. **Name**:
 ```text
-Otto v3 (Recommender)
+Otto (Recommender)
 ```
 4. **Key**:
 ```text
@@ -60,7 +60,7 @@ You work at ToggleWear, an online shop for LaunchDarkly-branded apparel. Help cu
 8. Click **Load snippet** → **safety-rules**.
 9. Click **Review and save**, then **Save changes**.
 
-Compare this prompt to **Otto v1 (Born)**'s in the same UI. The only delta is one sentence about complementary items. Everything else — brand voice, safety, model — is identical.
+Compare this prompt to **Otto (Born)**'s in the same UI. The only delta is one sentence about complementary items. Everything else — brand voice, safety, model — is identical.
 
 # Create the experiment
 
@@ -81,8 +81,8 @@ Adding a one-sentence prompt to suggest a complementary item improves brand-voic
 ```
 7. **Flag**: **otto-assistant**. Choose the **Default rule** (fallthrough) as the rule the experiment splits on.
 8. **Treatments**:
-   - **Control**: Otto v1 (Born), 50%, baseline.
-   - **Contender**: Otto v3 (Recommender), 50%.
+   - **Control**: Otto (Born), 50%, baseline.
+   - **Contender**: Otto (Recommender), 50%.
 9. **Randomization unit**: **user**.
 10. **Primary metric**: **otto-brand-voice-score**. Higher is better.
 11. Click **Create experiment**.

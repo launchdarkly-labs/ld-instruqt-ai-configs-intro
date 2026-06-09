@@ -51,7 +51,7 @@ Today you'll wire the middle one.
 
 Open the [LaunchDarkly](#tab-0) tab. Go to **Configs → Otto Assistant → Targeting**.
 
-The default rule is currently serving **Otto v4 (Stiff)** to all users. The realchat traffic generator is sending real customer questions through; Stiff's corporate prompt makes the brand-voice judge unhappy on most of them; otto-brand-voice-score is dropping.
+The default rule is currently serving **Otto (Stiff)** to all users. The realchat traffic generator is sending real customer questions through; Stiff's corporate prompt makes the brand-voice judge unhappy on most of them; otto-brand-voice-score is dropping.
 
 Your job: add an in-app loop that watches the score, and when the rolling mean drops below 0.5, flips the fallthrough back to **otto-born** automatically.
 
@@ -202,7 +202,7 @@ Save the file. The togglewear service auto-reloads.
 The realchat traffic generator is sending real customer questions through `/chat`. Each one triggers a brand-voice judge invocation, which emits a score, which feeds your `adaptive_observe` call.
 
 1. Open the [LaunchDarkly](#tab-0) tab. Stay on **Otto Assistant → Targeting**.
-2. Refresh every 15-30 seconds. Within about a minute (10 samples × ~5 seconds per request), the rolling window should drop below 0.5 and your loop should flip the **Default rule** to **Otto v1 (Born)**.
+2. Refresh every 15-30 seconds. Within about a minute (10 samples × ~5 seconds per request), the rolling window should drop below 0.5 and your loop should flip the **Default rule** to **Otto (Born)**.
 3. The flip happens silently — no notifications. Otto just starts being on-brand again.
 
 If you want to see the loop's reasoning, tail the app log:

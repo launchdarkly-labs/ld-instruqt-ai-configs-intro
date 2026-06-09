@@ -26,7 +26,7 @@ resource "launchdarkly_ai_config_variation" "otto_premium" {
   project_key      = var.project_key
   config_key       = "otto-assistant"
   key              = "otto-premium"
-  name             = "Otto v2 (Premium)"
+  name             = "Otto (Premium)"
   model_config_key = "Anthropic.claude-sonnet-4-6"
 
   messages {

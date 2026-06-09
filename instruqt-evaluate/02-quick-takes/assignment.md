@@ -49,7 +49,7 @@ A low-rate stream of chat traffic is already flowing in the background, so by th
 
 Open the [LaunchDarkly](#tab-0) tab.
 
-1. Go to **Configs** → **Otto Assistant** → **Otto v1 (Born)**.
+1. Go to **Configs** → **Otto Assistant** → **Otto (Born)**.
 2. Scroll to the **Judges** section and click **Attach judges**.
 3. Select all three built-ins: **Accuracy**, **Relevance**, and **Toxicity**.
 4. Set the sampling rate for each to **25%**.
@@ -75,4 +75,4 @@ A few questions to sit with:
 
 You won't fix anything in this challenge — observation is the point. The next two challenges write **custom** judges for the brand-voice and product-claim signals that the built-ins don't cover.
 
-Click **Check** when at least one built-in is attached to Otto v1 (Born).
+Click **Check** when at least one built-in is attached to Otto (Born).

@@ -26,11 +26,11 @@ fi
 STIFF_VAR_ID=$(curl -s -X GET \
   "https://app.launchdarkly.com/api/v2/projects/${LD_PROJECT_KEY}/ai-configs/otto-assistant/targeting" \
   -H "Authorization: ${LAUNCHDARKLY_ACCESS_TOKEN}" \
-  | jq -r '.variations[]? | select(.name=="Otto v4 (Stiff)") | ._id')
+  | jq -r '.variations[]? | select(.name=="Otto (Stiff)") | ._id')
 BORN_VAR_ID=$(curl -s -X GET \
   "https://app.launchdarkly.com/api/v2/projects/${LD_PROJECT_KEY}/ai-configs/otto-assistant/targeting" \
   -H "Authorization: ${LAUNCHDARKLY_ACCESS_TOKEN}" \
-  | jq -r '.variations[]? | select(.name=="Otto v1 (Born)") | ._id')
+  | jq -r '.variations[]? | select(.name=="Otto (Born)") | ._id')
 
 if [ -n "$STIFF_VAR_ID" ] && [ -n "$BORN_VAR_ID" ]; then
   curl -fsS -X PATCH \
