@@ -30,6 +30,7 @@ Where N is the number of iterations (default 600 -- typically yields
 """
 from __future__ import annotations
 
+import json
 import os
 import sys
 from pathlib import Path
@@ -71,6 +72,9 @@ def main() -> int:
         if cfg.enabled and cfg.model is not None and cfg.model.name == STIFF_MODEL_NAME:
             ld_client.track("otto-brand-voice-score", ctx, None, 0.0)
             hits += 1
+        else:
+            ld_client.track("otto-brand-voice-score", ctx, None, 9.0)
+
         if (i + 1) % 50 == 0:
             print(f"  {i + 1}/{n} (hits: {hits})")
 
